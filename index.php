@@ -1,22 +1,37 @@
 <?php
-$apiKey = "chave api";
-$ano = 2023;
-$funcao = "06";
-$maxPaginas = 50;
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+/* 
+
+NECESSÁRIO: tenho que modificar a forma com que ele pede os endpoints de inicio e fim, pra 
+poder ser escolhido pelo usuario e ficar bonito no dashboard
+
+Removido os arquivos de css e js, são desnecessarios no momento apenas com backend
+
+Foi necessária a modificação da url pra ter a localidade da despesa
+
+No colab, o arquivo "gastos segurança pública 03" encontrou 131 páginas no ano de 2024 inteiro
+
+*/
 
 
-function converterValorBrasileiro($valor) {
-    if ($valor === null || $valor === '') return 0.0;
-    $valor = str_replace('.', '', $valor);
-    $valor = str_replace(',', '.', $valor);
-    return floatval($valor);
-}
+$MES_ANO_INICIO = "01/2024";
+$MES_ANO_FIM = "12/2024";
+$CHAVE_API = "chave api";
 
-function obterDados($ano, $funcao, $pagina, $apiKey) {
-    $url = "https://api.portaldatransparencia.gov.br/api-de-dados/despesas/por-funcional-programatica";
+$TAMANHO_PAGINA = 15;
+$MAX_PAGINAS = 2; // limite de paginas para não ultrapassar 120 segundos de busca, necessita correção para buscar todos os dados sem limite de tempo
+
+
+
+function obter_recursos_recebidos($mesInicio, $mesFim, $pagina, $apiKey) {
+    $url = "https://api.portaldatransparencia.gov.br/api-de-dados/despesas/recursos-recebidos";
+    //url corrigida para uma possui colunas de UF em que houve a despesa, a outra não tinha isso
+
     $params = http_build_query([
-        "ano" => $ano,
-        "funcao" => $funcao,
+        "mesAnoInicio" => $mesInicio,
+        "mesAnoFim" => $mesFim,
         "pagina" => $pagina
     ]);
 
@@ -26,75 +41,115 @@ function obterDados($ano, $funcao, $pagina, $apiKey) {
         "accept: */*",
         "chave-api-dados: $apiKey"
     ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
     $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+
+    if ($httpCode === 400) {
+        return null;
+    }
 
     return json_decode($response, true);
 }
 
 
-$dados = [];
-for ($pagina = 1; $pagina <= $maxPaginas; $pagina++) {
-    $resultado = obterDados($ano, $funcao, $pagina, $apiKey);
-    if (!$resultado || count($resultado) === 0) break;
-    $dados = array_merge($dados, $resultado);
-}
+function buscar_todos_recursos_recebidos($mesInicio, $mesFim, $apiKey, $maxPaginas, $tamanhoPagina) {
+    $dados = [];
+    $pagina = 1;
 
+    echo "Buscando recursos recebidos - Período $mesInicio a $mesFim<br><br>";
 
-$subfuncoes = [];
-$totalPago = 0;
+    while ($pagina <= $maxPaginas) {
+        echo "Página $pagina... ";
 
-foreach ($dados as $linha) {
-    if (!isset($linha['subfuncao']) || !isset($linha['pago'])) continue;
+        $lote = obter_recursos_recebidos($mesInicio, $mesFim, $pagina, $apiKey);
 
-    $valorPago = converterValorBrasileiro($linha['pago']);
-    $sub = $linha['subfuncao'];
+        if ($lote === null) {
+            echo "(fim – página inexistente)<br>";
+            break;
+        }
 
-    if (!isset($subfuncoes[$sub])) {
-        $subfuncoes[$sub] = 0;
+        if (empty($lote)) {
+            echo "(fim – vazio)<br>";
+            break;
+        }
+
+        $dados = array_merge($dados, $lote);
+        echo count($lote) . " registros<br>";
+
+        if (count($lote) < $tamanhoPagina) {
+            echo "Última página detectada.<br>";
+            break;
+        }
+
+        $pagina++;
     }
 
-    $subfuncoes[$sub] += $valorPago;
-    $totalPago += $valorPago;
+    echo "<br>Total de registros obtidos: " . count($dados) . "<br><br>";
+    return $dados;
 }
 
-arsort($subfuncoes);
-?>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Segurança Pública - 2023</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// filtro para buscar apenas dados da segurança publica
+function filtrar_seguranca_publica($dados) {
+    $padrao = '/segurança|polícia|penitenci|prisional|força|criminal|bombeiro|guarda|defesa social/i';
+    $filtrados = [];
 
-<h1>Gastos com Segurança Pública – 2023</h1>
-<p><strong>Total pago:</strong> R$ <?= number_format($totalPago, 2, ',', '.') ?></p>
+    foreach ($dados as $linha) {
+        $texto =
+            ($linha['nomeOrgao'] ?? '') . ' ' .
+            ($linha['nomeOrgaoSuperior'] ?? '') . ' ' .
+            ($linha['nomeUG'] ?? '') . ' ' .
+            ($linha['nomePessoa'] ?? '');
 
-<table>
-    <thead>
-        <tr>
-            <th>Subfunção</th>
-            <th>Valor Pago (R$)</th>
-            <th>% do Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($subfuncoes as $sub => $valor): 
-            $percentual = ($totalPago > 0) ? ($valor / $totalPago * 100) : 0;
-        ?>
-        <tr>
-            <td><?= htmlspecialchars($sub) ?></td>
-            <td>R$ <?= number_format($valor, 2, ',', '.') ?></td>
-            <td><?= number_format($percentual, 2, ',', '.') ?>%</td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+        if (preg_match($padrao, $texto)) {
+            $filtrados[] = $linha;
+        }
+    }
 
-<script src="script.js"></script>
-</body>
-</html>
+    echo "Registros após filtro Segurança Pública: " . count($filtrados) . "<br><br>";
+    return $filtrados;
+}
+
+
+function analisar_totais($dados) {
+    $total = 0;
+
+    foreach ($dados as $linha) {
+        if (isset($linha['valor'])) {
+            $total += floatval($linha['valor']);
+        }
+    }
+
+    echo "<strong>Total de recursos recebidos:</strong> R$ " .
+         number_format($total, 2, ',', '.') . "<br><br>";
+
+    return $total;
+}
+
+
+echo "<pre>";
+
+$dados = buscar_todos_recursos_recebidos(
+    $MES_ANO_INICIO,
+    $MES_ANO_FIM,
+    $CHAVE_API,
+    $MAX_PAGINAS,
+    $TAMANHO_PAGINA
+);
+
+if (empty($dados)) {
+    echo "Nenhum dado obtido.\n";
+    exit;
+}
+
+echo "Exemplo de registro bruto:\n";
+print_r($dados[0]);
+
+$dadosSeg = filtrar_seguranca_publica($dados);
+$total = analisar_totais($dadosSeg);
+
+echo "</pre>";

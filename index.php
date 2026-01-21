@@ -13,6 +13,14 @@ Foi necessária a modificação da url pra ter a localidade da despesa
 
 No colab, o arquivo "gastos segurança pública 03" encontrou 131 páginas no ano de 2024 inteiro
 
+
+Checklist das atividades
+- Buscar os dados da api: ok
+- Primeira versão capaz de identificar e filtar dados: ok
+- Frontend como campos de interação com usuário: a fazer
+- Funções js e css pra exibição do mapa do Brazil: a fazer
+- Buscar dados de incidência criminal por regiões do país: a fazer
+
 */
 
 

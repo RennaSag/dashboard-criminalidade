@@ -91,7 +91,7 @@ $gastos_categorias = json_encode([
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Segurança Pública — Brasil</title>
+    <title>Dashboard de Segurança Pública - Brasil</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -144,7 +144,7 @@ $gastos_categorias = json_encode([
         <header class="topbar">
             <div class="topbar-title">
                 <h1>Dashboard de <span class="accent">Segurança Pública</span></h1>
-                <p class="topbar-sub">Criminalidade x Investimento por Estado . 2022-2024</p>
+                <p class="topbar-sub">Correlação do investimento em segurança pública com índices de criminalidade.</p>
             </div>
             <div class="topbar-controls">
                 <select id="ano-selector" class="control-select">
@@ -165,7 +165,7 @@ $gastos_categorias = json_encode([
         <!-- secao visao geral -->
         <section id="visao-geral" class="section active">
             <div class="section-header">
-                <div class="section-tag">01 - VISÃO GERAL</div>
+                <div class="section-tag">VISÃO GERAL</div>
                 <h2>Panorama Nacional · <span id="ano-display">2024</span></h2>
             </div>
 
@@ -206,11 +206,11 @@ $gastos_categorias = json_encode([
 
             <div class="mini-charts-row">
                 <div class="chart-card">
-                    <div class="chart-label">MVI por Estado - 2024</div>
+                    <div class="chart-label" title="Homicídios dolósos, latrocínio (roubo seguido de morte), lesão corporal seguida de morte, mortes decorrentes de intervenção policial.">MVI por Estado - 2024</div>
                     <canvas id="chart-mvi-bar" height="180"></canvas>
                 </div>
                 <div class="chart-card chart-donut-wrap">
-                    <div class="chart-label">Distribuição do Investimento</div>
+                    <div class="chart-label" title="Apresenta as diferentes formas de investimento em segurança pública (disponíveis nos anuários oficiais)">Distribuição do Investimento</div>
                     <canvas id="chart-gastos-donut" height="180"></canvas>
                 </div>
             </div>
@@ -219,7 +219,7 @@ $gastos_categorias = json_encode([
         <!-- secao mapa -->
         <section id="mapa" class="section">
             <div class="section-header">
-                <div class="section-tag">02 - MAPA DE CALOR</div>
+                <div class="section-tag">MAPA DE CALOR</div>
                 <h2>Hot Spots Criminais por Estado</h2>
             </div>
             <div class="map-layout">
@@ -233,8 +233,7 @@ $gastos_categorias = json_encode([
                     <div id="map-estado-info" class="estado-info-box">
                         <div class="info-hint">↖ Passe o cursor sobre um estado</div>
                     </div>
-                    <div class="ranking-title">Top 5 Piores Estados</div>
-                    <div id="ranking-list" class="ranking-list"></div>
+                    
                 </div>
             </div>
         </section>
@@ -242,27 +241,40 @@ $gastos_categorias = json_encode([
         <!-- secao criminalidade -->
         <section id="criminalidade" class="section">
             <div class="section-header">
-                <div class="section-tag">03 - CRIMINALIDADE</div>
+                <div class="section-tag">CRIMINALIDADE</div>
                 <h2>Evolução dos Indicadores 2022-2024</h2>
             </div>
             <div class="charts-2col">
                 <div class="chart-card tall">
-                    <div class="chart-label">Mortes Violentas Intencionais - Série Histórica</div>
+
+
+                    <div class="chart-label" title="Homicídios dolósos, latrocínio (roubo seguido de morte), lesão corporal seguida de morte, mortes decorrentes de intervenção policial.">
+                    Mortes Violentas Intencionais - Série Histórica
+                    </div>
+
+
                     <canvas id="chart-mvi-line" height="260"></canvas>
                 </div>
 
                 <div class="chart-card tall">
-                    <div class="chart-label">Tráfico de Drogas por Estado</div>
+                    <div class="chart-label" title="Comercialização, transporte ou distribuição de qualquer substância ilícita, não só maconha e cocaína.">
+                    Tráfico de Drogas por Estado
+                </div>
+
                     <canvas id="chart-trafico-bar" height="260"></canvas>
                 </div>
 
             </div>
 
             <div class="chart-card full-width">
-                <div class="chart-label">Feminicídio por Estado</div>
+                <div class="chart-label" title="Decorre de violência doméstica e familiar, ou de menosprezo/discriminação à condição de mulher.">
+                    Feminicídio por Estado
+                </div>
+
                 <canvas id="chart-feminicidio-bar" height="160"></canvas>
             </div>
-            <div class="chart-card full-width">
+
+            <div class="chart-card full-width" title="Subtração de um bem com/sem uso de violência ou ameaça contra a vítima.">
                 <div class="chart-label">Comparativo: Roubo/Furto de Veículos e Celulares por Estado</div>
                 <canvas id="chart-roubo-bar" height="160"></canvas>
             </div>
@@ -272,7 +284,7 @@ $gastos_categorias = json_encode([
         <!-- secao investimentos -->
         <section id="investimentos" class="section">
             <div class="section-header">
-                <div class="section-tag">04 - INVESTIMENTOS</div>
+                <div class="section-tag">INVESTIMENTOS</div>
                 <h2>Gastos em Segurança Pública por Estado</h2>
             </div>
 
@@ -300,17 +312,12 @@ $gastos_categorias = json_encode([
                 </div>
             </div>
 
-            <!-- linha correlação -->
-            <div class="chart-card full-width">
-                <div class="chart-label">Correlação: Investimento em Policiamento × MVI</div>
-                <canvas id="chart-correlacao" height="200"></canvas>
-            </div>
         </section>
 
         <!-- secao tabela -->
         <section id="tabela" class="section">
             <div class="section-header">
-                <div class="section-tag">05 - DADOS DETALHADOS</div>
+                <div class="section-tag">DADOS DETALHADOS</div>
                 <h2>Consulta por Indicador</h2>
             </div>
             <div class="table-controls">
@@ -344,16 +351,16 @@ $gastos_categorias = json_encode([
                         ?>
                             <tr>
                                 <td class="estado-cell"><?= htmlspecialchars($row['estado']) ?></td>
-                                <td><?= $row['ano2022'] ?? '—' ?></td>
-                                <td><?= $row['ano2023'] ?? '—' ?></td>
-                                <td><?= $row['ano2024'] ?? '—' ?></td>
+                                <td><?= $row['ano2022'] ?? '-' ?></td>
+                                <td><?= $row['ano2023'] ?? '-' ?></td>
+                                <td><?= $row['ano2024'] ?? '-' ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
             <div class="fonte" id="fonte-texto">
-                <strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) — Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.
+                <strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.
             </div>
         </section>
 
@@ -420,15 +427,15 @@ $gastos_categorias = json_encode([
         };
 
         const FONTES = {
-            trafico_de_drogas: "<strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) — Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.",
-            feminicidio: "<strong>Feminicídio</strong> (taxa por 100 mil mulheres) — Fonte: Secretarias Estaduais; Ministério Público; IBGE; Fórum Brasileiro de Segurança Pública.",
-            roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (por 100 mil veículos) — Fonte: Sec. Estaduais; SENATRAN/RENAVAM; Fórum Brasileiro de Segurança Pública.",
-            roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (por 100 mil hab.) — Fonte: Sec. Estaduais; IBGE; Fórum Brasileiro de Segurança Pública.",
-            mvi: "<strong>MVI — Mortes Violentas Intencionais</strong> (por 100 mil hab.) — Fonte: Sec. Estaduais; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.",
-            policiamento: "<strong>Gastos em Policiamento</strong> (R$) — Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            defesa_civil: "<strong>Gastos em Defesa Civil</strong> (R$) — Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            informacoes_e_inteligencia: "<strong>Gastos em Informações e Inteligência</strong> (R$) — Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) — Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            trafico_de_drogas: "<strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.",
+            feminicidio: "<strong>Feminicídio</strong> (taxa por 100 mil mulheres) - Fonte: Secretarias Estaduais; Ministério Público; IBGE; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (por 100 mil veículos) - Fonte: Sec. Estaduais; SENATRAN/RENAVAM; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; IBGE; Fórum Brasileiro de Segurança Pública.",
+            mvi: "<strong>MVI - Mortes Violentas Intencionais</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.",
+            policiamento: "<strong>Gastos em Policiamento</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            defesa_civil: "<strong>Gastos em Defesa Civil</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            informacoes_e_inteligencia: "<strong>Gastos em Informações e Inteligência</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
         };
     </script>
     <script src="dashboard.js"></script>

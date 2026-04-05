@@ -23,9 +23,11 @@ const C = {
 function colorByValue(val, min, max) {
     if (val === null || val === undefined || isNaN(val)) return '#e8ecf2';
     const pct = Math.max(0, Math.min(1, (val - min) / (max - min || 1)));
-    if (pct < 0.33) return lerpColor('#1a7a40', '#c8a800', pct / 0.33);
-    if (pct < 0.66) return lerpColor('#c8a800', '#d4860a', (pct - 0.33) / 0.33);
-    return lerpColor('#d4860a', '#c0392b', (pct - 0.66) / 0.34);
+
+
+    if (pct < 0.5) return lerpColor('#0a3d91', '#4db8ff', pct / 0.5);
+    return lerpColor('#4db8ff', '#ff0000', (pct - 0.5) / 0.5);
+    
 }
 
 function lerpColor(a, b, t) {
@@ -167,7 +169,7 @@ function renderVisaoGeral() {
                 labels: pares.map(p => p.e),
                 datasets: [{
                     data: pares.map(p => p.v),
-                    backgroundColor: pares.map(p => colorByValue(p.v, minV, maxV) + 'cc'),
+                    backgroundColor: pares.map(p => colorByValue(p.v, minV, maxV)),
                     borderColor: pares.map(p => colorByValue(p.v, minV, maxV)),
                     borderWidth: 1,
                     borderRadius: 4,
@@ -177,7 +179,7 @@ function renderVisaoGeral() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true }
+                    y: { grid: GRID, beginAtZero: true, title: {display:true, text: 'Taxa por 100k hab. - ${ano}', color: '#8a96a8'} }
                 },
                 animation: { duration: 600 },
             }
@@ -187,7 +189,7 @@ function renderVisaoGeral() {
     // atualiza label do gráfico de barras
     const indLabels = { mvi: 'MVI', trafico: 'Tráfico de Drogas', feminicidio: 'Feminicídio', rouboVeiculos: 'Roubo/Furto Veículos', rouboCelulares: 'Roubo/Furto Celulares' };
     const labelEl = document.querySelector('.mini-charts-row .chart-label');
-    if (labelEl) labelEl.textContent = `${indLabels[ind] || ind} por Estado — ${ano}`;
+    if (labelEl) labelEl.textContent = `${indLabels[ind] || ind} por Estado - ${ano}`;
 
     // donut gastos estatico
     if (!chartGastosDn) {
@@ -325,14 +327,14 @@ function renderMapa(geojson) {
         onEachFeature: (feature, layer) => {
             const nomeGeo = extrairNomeGeoJSON(feature.properties);
             const sigla = extrairSigla(feature.properties) || '';
-            const nome = nomeGeo || SIGLA_PARA_NOME[sigla] || sigla || '—';
+            const nome = nomeGeo || SIGLA_PARA_NOME[sigla] || sigla || '-';
             const val = buscarValor(feature.properties);
 
             layer.on({
                 mouseover: e => {
                     e.target.setStyle({ weight: 3, fillOpacity: 0.95, color: '#1a56a0' });
                     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront();
-                    atualizarInfoBox(sigla, nome, val, ind);
+                    atualizarInfoBox(sigla, nome, val, ind, min, max);
                 },
                 mouseout: e => {
                     geojsonLayer.resetStyle(e.target);
@@ -367,10 +369,15 @@ function renderMapa(geojson) {
     }
 }
 
-function atualizarInfoBox(sigla, nome, val, ind) {
-    const labels = { mvi: 'MVI (por 100k hab.)', trafico: 'Tráfico (por 100k)', feminicidio: 'Feminicídio (por 100k mulheres)' };
-    const polData = DATA.policiamento || {};
-    const polVal = polData[nome] ?? polData[sigla] ?? null;
+function atualizarInfoBox(sigla, nome, val, ind, min, max) {
+    const ano = getAno();
+    const labels = { mvi: 'MVI (por 100k hab.)', trafico: 'Tráfico (por 100k)', feminicidio: 'Feminicídio (por 100k mulheres)', rouboVeiculos: 'Roubo Veículos (por 100k)', rouboCelulares: 'Roubo Celulares (por 100k)' };
+
+    function getInvest(chave) {
+        const m = DATA[`${chave}${ano}`] || DATA[chave] || {};
+        return m[nome] ?? m[sigla] ?? null;
+    }
+
     const box = document.getElementById('map-estado-info');
     if (!box) return;
     box.innerHTML = `
@@ -380,11 +387,33 @@ function atualizarInfoBox(sigla, nome, val, ind) {
             <span class="metric-val danger">${fmtNum(val)}</span>
         </div>
         <div class="metric">
+            <span class="metric-label">Menor índice</span>
+            <span class="metric-val invest">${fmtNum(min)}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Maior índice</span>
+            <span class="metric-val danger">${fmtNum(max)}</span>
+        </div>
+        <hr style="border:none;border-top:2px solid var(--border);margin:6px 0;">
+        <div class="metric">
             <span class="metric-label">Policiamento</span>
-            <span class="metric-val invest">${fmtBRL(polVal)}</span>
+            <span class="metric-val invest">${fmtBRL(getInvest('policiamento'))}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Defesa Civil</span>
+            <span class="metric-val invest">${fmtBRL(getInvest('defesaCivil'))}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Inteligência</span>
+            <span class="metric-val invest">${fmtBRL(getInvest('inteligencia'))}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Demais Serviços</span>
+            <span class="metric-val invest">${fmtBRL(getInvest('demaisServicos'))}</span>
         </div>
     `;
 }
+
 
 // secao 3 criminalidade
 let chartMviLine = null;
@@ -469,7 +498,7 @@ function renderCriminalidade() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k hab. — ${ano}`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k hab. - ${ano}`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -503,7 +532,7 @@ function renderCriminalidade() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k mulheres — ${ano}`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k mulheres - ${ano}`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -645,17 +674,17 @@ function renderInvestimentos() {
             options: {
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => `${ctx.raw.label} — Policiamento: ${fmtBRL(ctx.raw.x)} | MVI: ${fmtNum(ctx.raw.y)}` } }
+                    tooltip: { callbacks: { label: ctx => `${ctx.raw.label} - Policiamento: ${fmtBRL(ctx.raw.x)} | MVI: ${fmtNum(ctx.raw.y)}` } }
                 },
                 scales: {
                     x: {
                         grid: GRID,
-                        title: { display: true, text: `Policiamento (R$) — ${ano}`, color: '#8a96a8' },
+                        title: { display: true, text: `Policiamento (R$) - ${ano}`, color: '#8a96a8' },
                         ticks: { callback: v => (v / 1e9).toFixed(1).replace('.', ',') + 'B' }
                     },
                     y: {
                         grid: GRID,
-                        title: { display: true, text: `MVI (por 100 mil hab.) — ${ano}`, color: '#8a96a8' }
+                        title: { display: true, text: `MVI (por 100 mil hab.) - ${ano}`, color: '#8a96a8' }
                     }
                 },
                 animation: { duration: 700 },
@@ -695,9 +724,9 @@ function filtrarTabela() {
     tabelaBody.innerHTML = filtered.map(r => `
         <tr>
             <td class="estado-cell">${r.estado}</td>
-            <td>${r.ano2022 || '—'}</td>
-            <td>${r.ano2023 || '—'}</td>
-            <td>${r.ano2024 || '—'}</td>
+            <td>${r.ano2022 || '-'}</td>
+            <td>${r.ano2023 || '-'}</td>
+            <td>${r.ano2024 || '-'}</td>
         </tr>
     `).join('');
 }

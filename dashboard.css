@@ -78,6 +78,31 @@ body {
     background: rgba(0,0,0,0.18);
 }
 
+
+.chart-label { position: relative; }
+
+.chart-label[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--text);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    width: 280px;
+    line-height: 1.6;
+    z-index: 999;
+    box-shadow: var(--shadow-md);
+    margin-top: 6px;
+}
+
+
+
 .brand-icon { font-size: 26px; color: #fff; line-height: 1; }
 
 .brand-title {
@@ -398,7 +423,7 @@ body {
 .legend-gradient {
     height: 12px;
     border-radius: 6px;
-    background: linear-gradient(to right, var(--green-low), var(--yellow), var(--orange), var(--red-mid), var(--red-hot));
+    background: linear-gradient(to right, #0a3d91, #4db8ff, #ff0000);
 }
 
 .legend-labels {

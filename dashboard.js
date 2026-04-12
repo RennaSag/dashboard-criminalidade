@@ -424,52 +424,56 @@ function renderCriminalidade() {
     const ano = getAno();
     const estados = DATA.estados || [];
 
-    const mviMapa = getMapaIndicador('mvi', ano);
-    const pares = estados
-        .map(e => ({ e, v: mviMapa[e] ?? null }))
-        .filter(p => p.v !== null && !isNaN(p.v))
-        .sort((a, b) => b.v - a.v)
-        .slice(0, 8);
+ // line mvi serie historica - usa mapas por estado (igual trafico/feminicidio)
+const mviMapa2022 = DATA.mvi2022_map || {};
+const mviMapa2023 = DATA.mvi2023_map || {};
+const mviMapa2024 = DATA.mvi || {};
 
-    const topEstados = pares.map(p => p.e);
-    const idxs = topEstados.map(e => estados.indexOf(e));
+// pega todos os estados que têm dado em pelo menos um ano
+const todosEstadosMvi = estados.filter(e =>
+    mviMapa2022[e] != null || mviMapa2023[e] != null || mviMapa2024[e] != null
+).sort((a, b) => (mviMapa2024[b] ?? mviMapa2023[b] ?? 0) - (mviMapa2024[a] ?? mviMapa2023[a] ?? 0));
 
-    // line mvi serie historica
-    const ctxLine = document.getElementById('chart-mvi-line');
-    if (ctxLine) {
-        if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
-        chartMviLine = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: topEstados,
-                datasets: [
-                    {
-                        label: '2022',
-                        data: idxs.map(i => (DATA.mvi2022 || [])[i] ?? null),
-                        borderColor: C.accent, backgroundColor: C.accent + '18',
-                        fill: false, tension: 0.4, pointRadius: 5, borderWidth: 2,
-                    },
-                    {
-                        label: '2023',
-                        data: idxs.map(i => (DATA.mvi2023 || [])[i] ?? null),
-                        borderColor: C.warning, backgroundColor: C.warning + '18',
-                        fill: false, tension: 0.4, pointRadius: 5, borderWidth: 2,
-                    },
-                    {
-                        label: '2024',
-                        data: idxs.map(i => (DATA.mvi2024 || [])[i] ?? null),
-                        borderColor: C.danger, backgroundColor: C.danger + '18',
-                        fill: true, tension: 0.4, pointRadius: 5, borderWidth: 2,
-                    },
-                ]
+const ctxLine = document.getElementById('chart-mvi-line');
+if (ctxLine) {
+    if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
+    chartMviLine = new Chart(ctxLine, {
+        type: 'bar',
+        data: {
+            labels: todosEstadosMvi,
+            datasets: [
+                {
+                    label: '2022',
+                    data: todosEstadosMvi.map(e => mviMapa2022[e] ?? null),
+                    backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
+                },
+                {
+                    label: '2023',
+                    data: todosEstadosMvi.map(e => mviMapa2023[e] ?? null),
+                    backgroundColor: C.warning + 'bb', borderColor: C.warning, borderWidth: 1, borderRadius: 3,
+                },
+                {
+                    label: '2024',
+                    data: todosEstadosMvi.map(e => mviMapa2024[e] ?? null),
+                    backgroundColor: C.danger + 'bb', borderColor: C.danger, borderWidth: 1, borderRadius: 3,
+                },
+            ]
+        },
+        options: {
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
+                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Taxa por 100k hab.', color: '#8a96a8' } }
             },
-            options: {
-                plugins: { legend: { position: 'top' } },
-                scales: { x: { grid: GRID }, y: { grid: GRID, beginAtZero: false } },
-                animation: { duration: 700 },
-            }
-        });
-    }
+            animation: { duration: 700 },
+        }
+    });
+}
+
+
+
+
+
 
     // barra trafico por estado
     const trafMapa = getMapaIndicador('trafico', ano);

@@ -17,6 +17,11 @@ function getDados($conn, $tabela)
 function limparNumero($valor)
 {
     if ($valor == NULL || $valor == "" || $valor == "-" || $valor == "0,00") return null;
+
+    if (preg_match('/^\d+(\.\d+)?$/', trim($valor))) {
+        return floatval($valor);
+    }
+
     $v = str_replace(".", "", $valor);
     $v = str_replace(",", ".", $v);
     return floatval($v);
@@ -233,44 +238,38 @@ $gastos_categorias = json_encode([
                     <div id="map-estado-info" class="estado-info-box">
                         <div class="info-hint">↖ Passe o cursor sobre um estado</div>
                     </div>
-                    
+
                 </div>
             </div>
         </section>
 
+
+        <!-- secao criminalidade -->
         <!-- secao criminalidade -->
         <section id="criminalidade" class="section">
             <div class="section-header">
                 <div class="section-tag">CRIMINALIDADE</div>
                 <h2>Evolução dos Indicadores 2022-2024</h2>
             </div>
-            <div class="charts-2col">
-                <div class="chart-card tall">
 
-
-                    <div class="chart-label" title="Homicídios dolósos, latrocínio (roubo seguido de morte), lesão corporal seguida de morte, mortes decorrentes de intervenção policial.">
+            <div class="chart-card tall full-width">
+                <div class="chart-label" title="Homicídios dolósos, latrocínio (roubo seguido de morte), lesão corporal seguida de morte, mortes decorrentes de intervenção policial.">
                     Mortes Violentas Intencionais - Série Histórica
-                    </div>
-
-
-                    <canvas id="chart-mvi-line" height="260"></canvas>
                 </div>
+                <canvas id="chart-mvi-line" height="160"></canvas>
+            </div>
 
-                <div class="chart-card tall">
-                    <div class="chart-label" title="Comercialização, transporte ou distribuição de qualquer substância ilícita, não só maconha e cocaína.">
+            <div class="chart-card tall full-width">
+                <div class="chart-label" title="Comercialização, transporte ou distribuição de qualquer substância ilícita, não só maconha e cocaína.">
                     Tráfico de Drogas por Estado
                 </div>
-
-                    <canvas id="chart-trafico-bar" height="260"></canvas>
-                </div>
-
+                <canvas id="chart-trafico-bar" height="160"></canvas>
             </div>
 
             <div class="chart-card full-width">
                 <div class="chart-label" title="Decorre de violência doméstica e familiar, ou de menosprezo/discriminação à condição de mulher.">
                     Feminicídio por Estado
                 </div>
-
                 <canvas id="chart-feminicidio-bar" height="160"></canvas>
             </div>
 
@@ -280,6 +279,8 @@ $gastos_categorias = json_encode([
             </div>
 
         </section>
+
+
 
         <!-- secao investimentos -->
         <section id="investimentos" class="section">

@@ -245,7 +245,6 @@ $gastos_categorias = json_encode([
 
 
         <!-- secao criminalidade -->
-        <!-- secao criminalidade -->
         <section id="criminalidade" class="section">
             <div class="section-header">
                 <div class="section-tag">CRIMINALIDADE</div>

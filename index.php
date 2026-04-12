@@ -260,7 +260,7 @@ $gastos_categorias = json_encode([
             </div>
 
             <div class="chart-card tall full-width">
-                <div class="chart-label" title="Comercialização, transporte ou distribuição de qualquer substância ilícita, não só maconha e cocaína.">
+                <div class="chart-label" title="Comercialização, transporte ou distribuição de qualquer substância ilícita.">
                     Tráfico de Drogas por Estado
                 </div>
                 <canvas id="chart-trafico-bar" height="160"></canvas>
@@ -316,6 +316,7 @@ $gastos_categorias = json_encode([
         </section>
 
         <!-- secao tabela -->
+        <!-- secao tabela -->
         <section id="tabela" class="section">
             <div class="section-header">
                 <div class="section-tag">DADOS DETALHADOS</div>
@@ -323,15 +324,19 @@ $gastos_categorias = json_encode([
             </div>
             <div class="table-controls">
                 <select name="tabela" id="tabela-select" class="control-select">
-                    <option value="trafico_de_drogas">Tráfico de Drogas</option>
-                    <option value="feminicidio">Feminicídio</option>
-                    <option value="roubo_furto_veiculos">Roubo/Furto Veículos</option>
-                    <option value="roubo_furto_celulares">Roubo/Furto Celulares</option>
-                    <option value="mvi">Mortes Violentas Intencionais</option>
-                    <option value="policiamento">Policiamento</option>
-                    <option value="defesa_civil">Defesa Civil</option>
-                    <option value="informacoes_e_inteligencia">Informações e Inteligência</option>
-                    <option value="demais_servicos">Demais Serviços</option>
+                    <optgroup label="Criminalidade">
+                        <option value="mvi">Mortes Violentas Intencionais</option>
+                        <option value="trafico_de_drogas">Tráfico de Drogas</option>
+                        <option value="feminicidio">Feminicídio</option>
+                        <option value="roubo_furto_veiculos">Roubo/Furto Veículos</option>
+                        <option value="roubo_furto_celulares">Roubo/Furto Celulares</option>
+                    </optgroup>
+                    <optgroup label="Investimentos">
+                        <option value="policiamento">Policiamento</option>
+                        <option value="defesa_civil">Defesa Civil</option>
+                        <option value="informacoes_e_inteligencia">Informações e Inteligência</option>
+                        <option value="demais_servicos">Demais Serviços</option>
+                    </optgroup>
                 </select>
                 <input type="text" id="busca-estado" class="control-select" placeholder="Filtrar estado...">
             </div>
@@ -347,7 +352,7 @@ $gastos_categorias = json_encode([
                     </thead>
                     <tbody id="tabela-body">
                         <?php
-                        $dados_ini = getDados($conn, "trafico_de_drogas");
+                        $dados_ini = getDados($conn, "mvi");
                         foreach ($dados_ini as $row):
                         ?>
                             <tr>
@@ -361,7 +366,7 @@ $gastos_categorias = json_encode([
                 </table>
             </div>
             <div class="fonte" id="fonte-texto">
-                <strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.
+                <strong>MVI - Mortes Violentas Intencionais</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.
             </div>
         </section>
 

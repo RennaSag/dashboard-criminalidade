@@ -179,7 +179,7 @@ function renderVisaoGeral() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: {display:true, text: 'Taxa por 100k hab. - ${ano}', color: '#8a96a8'} }
+                    y: { grid: GRID, beginAtZero: true, title: {display:true, text: 'Números Absolutos', color: '#8a96a8'} }
                 },
                 animation: { duration: 600 },
             }
@@ -463,16 +463,12 @@ if (ctxLine) {
             plugins: { legend: { position: 'top' } },
             scales: {
                 x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Taxa por 100k hab.', color: '#8a96a8' } }
+                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Números Absolutos', color: '#8a96a8' } }
             },
             animation: { duration: 700 },
         }
     });
 }
-
-
-
-
 
 
     // barra trafico por estado
@@ -737,3 +733,5 @@ function filtrarTabela() {
 
 if (tabelaSelect) tabelaSelect.addEventListener('change', () => carregarTabela(tabelaSelect.value));
 if (buscaInput) buscaInput.addEventListener('input', filtrarTabela);
+
+if (tabelaSelect) carregarTabela(tabelaSelect.value);

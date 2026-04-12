@@ -100,12 +100,13 @@ navItems.forEach(item => {
 
         const topbarControls = document.querySelector('.topbar-controls');
         const indSelector = document.getElementById('indicador-selector');
-        if (topbarControls) topbarControls.style.display = (target === 'tabela') ? 'none' : 'flex';
+        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'clusters') ? 'none' : 'flex';
         if (indSelector) indSelector.style.display = (target === 'investimentos' || target === 'criminalidade') ? 'none' : '';
 
         if (target === 'mapa') setTimeout(initMapa, 80);
         if (target === 'criminalidade') renderCriminalidade();
         if (target === 'investimentos') renderInvestimentos();
+        if (target === 'clusters') renderClusters();
     });
 });
 

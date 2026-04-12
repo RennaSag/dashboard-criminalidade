@@ -129,6 +129,11 @@ $gastos_categorias = json_encode([
             <a href="#investimentos" class="nav-item" data-section="investimentos">
                 <span class="nav-icon">◆</span> Investimentos
             </a>
+
+            <a href="#clusters" class="nav-item" data-section="clusters">
+                <span class="nav-icon">◎</span> Clusterização
+            </a>
+
             <a href="#tabela" class="nav-item" data-section="tabela">
                 <span class="nav-icon">▦</span> Dados Detalhados
             </a>
@@ -314,7 +319,51 @@ $gastos_categorias = json_encode([
 
         </section>
 
-        
+        <!-- secao clusters -->
+        <section id="clusters" class="section">
+            <div class="section-header">
+                <div class="section-tag">MACHINE LEARNING</div>
+                <h2>Clusterização dos Estados · K-Means</h2>
+            </div>
+            <div class="kpi-grid" id="cluster-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
+            <div class="charts-2col" style="margin-top:16px;">
+                <div class="chart-card">
+                    <div class="chart-label">Distribuição dos Estados por Cluster</div>
+                    <canvas id="chart-cluster-bar" height="220"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-label">MVI Médio vs Investimento em Policiamento por Cluster</div>
+                    <canvas id="chart-cluster-scatter" height="220"></canvas>
+                </div>
+            </div>
+            <div class="chart-card full-width" style="margin-top:16px;">
+                <div class="chart-label">Perfil de cada Cluster - Média dos Indicadores Normalizados</div>
+                <canvas id="chart-cluster-radar" height="120"></canvas>
+            </div>
+            <div class="table-wrapper" style="margin-top:16px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th>Cluster</th>
+                            <th>Perfil</th>
+                            <th>MVI Médio</th>
+                            <th>Policiamento Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cluster-tabela-body">
+                        <tr>
+                            <td colspan="5" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="fonte">
+                <strong>Clusterização K-Means (k=4)</strong> — Agrupamento dos 27 estados brasileiros com base na média 2022–2024 de 9 indicadores: MVI, Tráfico de Drogas, Feminicídio, Roubo/Furto de Veículos, Roubo/Furto de Celulares, Policiamento, Defesa Civil, Informações e Inteligência, e Demais Serviços. Features normalizadas via Z-score (StandardScaler). Fonte: Fórum Brasileiro de Segurança Pública · STN.
+            </div>
+        </section>
+
+
         <!-- secao tabela -->
         <section id="tabela" class="section">
             <div class="section-header">
@@ -433,22 +482,22 @@ $gastos_categorias = json_encode([
 
         const FONTES = {
             trafico_de_drogas: "<strong>Tráfico de drogas</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Estado do Alagoas; Polícia Civil do Distrito Federal; Projeções da População do Brasil e das Unidades da Federação - Instituto Brasileiro de Geografia e Estatística (IBGE); Fórum Brasileiro de Segurança Pública.",
-            
+
             feminicidio: "<strong>Feminicídio</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Ministério Publico do Acre; Polícia Civil do Distrito Federal; Instituto de Segurança Pública/RJ (ISP); Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
-            
+
             roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Ministério dos Transportes/Secretaria Nacional de Trânsito - SENATRAN; RENAVAM-Registro Nacional de Veículos Automotores; Fórum Brasileiro de Segurança Pública.",
-            
+
             roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
-            
+
             mvi: "<strong>MVI - Mortes Violentas Intencionais</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Ministério Público do Acre; Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Polícia Civil do Estado de Minas Gerais; Polícia Militar do Estado de Minas Gerais; Polícia Militar do Estado de Mato Grosso; Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
-            
+
 
             policiamento: "<strong>Gastos em Policiamento</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            
+
             defesa_civil: "<strong>Gastos em Defesa Civil</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            
+
             informacoes_e_inteligencia: "<strong>Gastos em Informações e Inteligência</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
-            
+
             demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
         };
     </script>

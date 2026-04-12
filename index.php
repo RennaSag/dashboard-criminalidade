@@ -314,7 +314,7 @@ $gastos_categorias = json_encode([
 
         </section>
 
-        <!-- secao tabela -->
+        
         <!-- secao tabela -->
         <section id="tabela" class="section">
             <div class="section-header">

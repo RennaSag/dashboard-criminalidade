@@ -371,7 +371,7 @@ function renderMapa(geojson) {
 
 function atualizarInfoBox(sigla, nome, val, ind, min, max) {
     const ano = getAno();
-    const labels = { mvi: 'MVI (por 100k hab.)', trafico: 'Tráfico (por 100k)', feminicidio: 'Feminicídio (por 100k mulheres)', rouboVeiculos: 'Roubo Veículos (por 100k)', rouboCelulares: 'Roubo Celulares (por 100k)' };
+    const labels = { mvi: 'MVI', trafico: 'Tráfico', feminicidio: 'Feminicídio', rouboVeiculos: 'Roubo de Veículos', rouboCelulares: 'Roubo de Celulares' };
 
     function getInvest(chave) {
         const m = DATA[`${chave}${ano}`] || DATA[chave] || {};

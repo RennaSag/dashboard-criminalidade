@@ -20,22 +20,29 @@ if (!in_array($tabela, $tabelasPermitidas)) {
 $isGasto = in_array($tabela, ['policiamento', 'defesa_civil', 'informacoes_e_inteligencia', 'demais_servicos']);
 
 function formatarValorAjax($valor, $isGasto) {
-    if ($valor == NULL || $valor == "" || $valor == "-" || $valor == "0,00") {
-        return "—";
+    if ($valor === NULL || $valor === '' || $valor === '-') {
+        return '—';
     }
     if ($isGasto) {
-        $v = str_replace(".", "", $valor);
-        $v = str_replace(",", ".", $v);
-        return "R$ " . number_format(floatval($v), 2, ",", ".");
+        $v = floatval($valor);
+        if ($v == 0) return '—';
+        return 'R$ ' . number_format($v, 2, ',', '.');
     }
     return $valor;
 }
 
-$sql = "SELECT * FROM $tabela ORDER BY estado ASC";
+$sql = "SELECT * FROM `$tabela` ORDER BY estado ASC";
 $result = $conn->query($sql);
 
+header('Content-Type: application/json; charset=utf-8');
+
+if (!$result) {
+    echo json_encode(['error' => $conn->error, 'rows' => []]);
+    exit;
+}
+
 $rows = [];
-if ($result && $result->num_rows > 0) {
+if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $rows[] = [
             'estado'  => $row['estado'],
@@ -46,5 +53,4 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
-header('Content-Type: application/json; charset=utf-8');
 echo json_encode(['rows' => $rows]);

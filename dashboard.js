@@ -27,7 +27,7 @@ function colorByValue(val, min, max) {
 
     if (pct < 0.5) return lerpColor('#0a3d91', '#4db8ff', pct / 0.5);
     return lerpColor('#4db8ff', '#ff0000', (pct - 0.5) / 0.5);
-    
+
 }
 
 function lerpColor(a, b, t) {
@@ -179,7 +179,7 @@ function renderVisaoGeral() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: {display:true, text: 'Números Absolutos', color: '#8a96a8'} }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Números Absolutos', color: '#8a96a8' } }
                 },
                 animation: { duration: 600 },
             }
@@ -424,51 +424,51 @@ function renderCriminalidade() {
     const ano = getAno();
     const estados = DATA.estados || [];
 
- // line mvi serie historica - usa mapas por estado (igual trafico/feminicidio)
-const mviMapa2022 = DATA.mvi2022_map || {};
-const mviMapa2023 = DATA.mvi2023_map || {};
-const mviMapa2024 = DATA.mvi || {};
+    // line mvi serie historica - usa mapas por estado (igual trafico/feminicidio)
+    const mviMapa2022 = DATA.mvi2022_map || {};
+    const mviMapa2023 = DATA.mvi2023_map || {};
+    const mviMapa2024 = DATA.mvi || {};
 
-// pega todos os estados que têm dado em pelo menos um ano
-const todosEstadosMvi = estados.filter(e =>
-    mviMapa2022[e] != null || mviMapa2023[e] != null || mviMapa2024[e] != null
-).sort((a, b) => (mviMapa2024[b] ?? mviMapa2023[b] ?? 0) - (mviMapa2024[a] ?? mviMapa2023[a] ?? 0));
+    // pega todos os estados que têm dado em pelo menos um ano
+    const todosEstadosMvi = estados.filter(e =>
+        mviMapa2022[e] != null || mviMapa2023[e] != null || mviMapa2024[e] != null
+    ).sort((a, b) => (mviMapa2024[b] ?? mviMapa2023[b] ?? 0) - (mviMapa2024[a] ?? mviMapa2023[a] ?? 0));
 
-const ctxLine = document.getElementById('chart-mvi-line');
-if (ctxLine) {
-    if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
-    chartMviLine = new Chart(ctxLine, {
-        type: 'bar',
-        data: {
-            labels: todosEstadosMvi,
-            datasets: [
-                {
-                    label: '2022',
-                    data: todosEstadosMvi.map(e => mviMapa2022[e] ?? null),
-                    backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
-                },
-                {
-                    label: '2023',
-                    data: todosEstadosMvi.map(e => mviMapa2023[e] ?? null),
-                    backgroundColor: C.warning + 'bb', borderColor: C.warning, borderWidth: 1, borderRadius: 3,
-                },
-                {
-                    label: '2024',
-                    data: todosEstadosMvi.map(e => mviMapa2024[e] ?? null),
-                    backgroundColor: C.danger + 'bb', borderColor: C.danger, borderWidth: 1, borderRadius: 3,
-                },
-            ]
-        },
-        options: {
-            plugins: { legend: { position: 'top' } },
-            scales: {
-                x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Números Absolutos', color: '#8a96a8' } }
+    const ctxLine = document.getElementById('chart-mvi-line');
+    if (ctxLine) {
+        if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
+        chartMviLine = new Chart(ctxLine, {
+            type: 'bar',
+            data: {
+                labels: todosEstadosMvi,
+                datasets: [
+                    {
+                        label: '2022',
+                        data: todosEstadosMvi.map(e => mviMapa2022[e] ?? null),
+                        backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
+                    },
+                    {
+                        label: '2023',
+                        data: todosEstadosMvi.map(e => mviMapa2023[e] ?? null),
+                        backgroundColor: C.warning + 'bb', borderColor: C.warning, borderWidth: 1, borderRadius: 3,
+                    },
+                    {
+                        label: '2024',
+                        data: todosEstadosMvi.map(e => mviMapa2024[e] ?? null),
+                        backgroundColor: C.danger + 'bb', borderColor: C.danger, borderWidth: 1, borderRadius: 3,
+                    },
+                ]
             },
-            animation: { duration: 700 },
-        }
-    });
-}
+            options: {
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
+                },
+                animation: { duration: 700 },
+            }
+        });
+    }
 
 
     // barra trafico por estado
@@ -498,7 +498,7 @@ if (ctxLine) {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k hab. - ${ano}`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Número Absoluto de Casos`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -532,7 +532,7 @@ if (ctxLine) {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100k mulheres - ${ano}`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Números Absolutos de Casos`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -553,22 +553,33 @@ if (ctxLine) {
                 labels: estFilt,
                 datasets: [
                     {
-                        label: 'Roubo/Furto Veículos (por 100k veíc.)',
+                        label: 'Roubo/Furto Veículos (nº absoluto)',
                         data: estFilt.map(e => veicMap[e]),
                         backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
                     },
                     {
-                        label: 'Roubo/Furto Celulares (por 100k hab.)',
+                        label: 'Roubo/Furto Celulares (nº absoluto)',
                         data: estFilt.map(e => celMap[e]),
                         backgroundColor: C.teal + 'bb', borderColor: C.teal, borderWidth: 1, borderRadius: 3,
                     },
                 ]
             },
             options: {
-                plugins: { legend: { position: 'top' } },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'rect',
+                            padding: 20,
+                            font: { size: 12, weight: '700' },
+                            color: '#4a5568',
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 45, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
                 },
                 animation: { duration: 600 },
             }

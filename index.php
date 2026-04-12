@@ -273,7 +273,7 @@ $gastos_categorias = json_encode([
                 <canvas id="chart-feminicidio-bar" height="160"></canvas>
             </div>
 
-            <div class="chart-card full-width" title="Subtração de um bem com/sem uso de violência ou ameaça contra a vítima.">
+            <div class="chart-card full-width">
                 <div class="chart-label">Comparativo: Roubo/Furto de Veículos e Celulares por Estado</div>
                 <canvas id="chart-roubo-bar" height="160"></canvas>
             </div>
@@ -292,11 +292,11 @@ $gastos_categorias = json_encode([
             <!-- linha policiamento + defesa civil -->
             <div class="charts-2col">
                 <div class="chart-card tall">
-                    <div class="chart-label">Policiamento - Investimento por Estado</div>
+                    <div class="chart-label">Policiamento</div>
                     <canvas id="chart-policiamento" height="280"></canvas>
                 </div>
                 <div class="chart-card tall">
-                    <div class="chart-label">Defesa Civil - Investimento por Estado</div>
+                    <div class="chart-label">Defesa Civil</div>
                     <canvas id="chart-defesa" height="280"></canvas>
                 </div>
             </div>
@@ -304,11 +304,11 @@ $gastos_categorias = json_encode([
             <!-- linha inteligência + demais serviços -->
             <div class="charts-2col">
                 <div class="chart-card tall">
-                    <div class="chart-label">Informações e Inteligência - Investimento por Estado</div>
+                    <div class="chart-label">Informações e Inteligência</div>
                     <canvas id="chart-inteligencia" height="280"></canvas>
                 </div>
                 <div class="chart-card tall">
-                    <div class="chart-label">Demais Serviços - Investimento por Estado</div>
+                    <div class="chart-label">Demais Serviços</div>
                     <canvas id="chart-demais" height="280"></canvas>
                 </div>
             </div>
@@ -433,14 +433,23 @@ $gastos_categorias = json_encode([
         };
 
         const FONTES = {
-            trafico_de_drogas: "<strong>Tráfico de drogas</strong> (taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Seg. Pública; IBGE; Fórum Brasileiro de Segurança Pública.",
-            feminicidio: "<strong>Feminicídio</strong> (taxa por 100 mil mulheres) - Fonte: Secretarias Estaduais; Ministério Público; IBGE; Fórum Brasileiro de Segurança Pública.",
-            roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (por 100 mil veículos) - Fonte: Sec. Estaduais; SENATRAN/RENAVAM; Fórum Brasileiro de Segurança Pública.",
-            roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; IBGE; Fórum Brasileiro de Segurança Pública.",
-            mvi: "<strong>MVI - Mortes Violentas Intencionais</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.",
+            trafico_de_drogas: "<strong>Tráfico de drogas</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Estado do Alagoas; Polícia Civil do Distrito Federal; Projeções da População do Brasil e das Unidades da Federação - Instituto Brasileiro de Geografia e Estatística (IBGE); Fórum Brasileiro de Segurança Pública.",
+            
+            feminicidio: "<strong>Feminicídio</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Ministério Publico do Acre; Polícia Civil do Distrito Federal; Instituto de Segurança Pública/RJ (ISP); Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
+            
+            roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Ministério dos Transportes/Secretaria Nacional de Trânsito – SENATRAN; RENAVAM-Registro Nacional de Veículos Automotores; Fórum Brasileiro de Segurança Pública.",
+            
+            roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Instituto Brasileiro de Geografia e Estatística (IBGE) – Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
+            
+            mvi: "<strong>MVI - Mortes Violentas Intencionais</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Ministério Público do Acre; Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Polícia Civil do Estado de Minas Gerais; Polícia Militar do Estado de Minas Gerais; Polícia Militar do Estado de Mato Grosso; Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
+            
+
             policiamento: "<strong>Gastos em Policiamento</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            
             defesa_civil: "<strong>Gastos em Defesa Civil</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            
             informacoes_e_inteligencia: "<strong>Gastos em Informações e Inteligência</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+            
             demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
         };
     </script>

@@ -4,9 +4,20 @@
 include("conectar.php");
 
 $tabelasPermitidas = [
-    'trafico_de_drogas', 'feminicidio', 'roubo_furto_veiculos',
-    'roubo_furto_celulares', 'mvi', 'policiamento',
-    'defesa_civil', 'informacoes_e_inteligencia', 'demais_servicos'
+    'mvi_numeros_absolutos',
+    'trafico_de_drogas_numeros_absolutos',
+    'feminicidio_numeros_absolutos',
+    'roubo_furto_veiculos_numeros_absolutos',
+    'roubo_furto_celulares_numeros_absolutos',
+    'mvi_taxa',
+    'trafico_de_drogas_taxa',
+    'feminicidio_taxa',
+    'roubo_furto_veiculos_taxa',
+    'roubo_furto_celulares_taxa',
+    'policiamento',
+    'defesa_civil',
+    'informacoes_e_inteligencia',
+    'demais_servicos'
 ];
 
 $tabela = $_GET['tabela'] ?? '';

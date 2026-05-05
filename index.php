@@ -28,11 +28,11 @@ function limparNumero($valor)
 }
 
 // carrega todos os dados
-$mvi            = getDados($conn, "mvi");
-$trafico        = getDados($conn, "trafico_de_drogas");
-$feminicidio    = getDados($conn, "feminicidio");
-$roubo_veiculos = getDados($conn, "roubo_furto_veiculos");
-$roubo_celulares = getDados($conn, "roubo_furto_celulares");
+$mvi            = getDados($conn, "mvi_numeros_absolutos");
+$trafico        = getDados($conn, "	trafico_de_drogas_numeros_absolutos");
+$feminicidio    = getDados($conn, "feminicidio_numeros_absolutos");
+$roubo_veiculos = getDados($conn, "roubo_furto_veiculos_numeros_absolutos");
+$roubo_celulares = getDados($conn, "roubo_furto_celulares_numeros_absolutos	");
 $policiamento   = getDados($conn, "policiamento");
 $defesa_civil   = getDados($conn, "defesa_civil");
 $inteligencia   = getDados($conn, "informacoes_e_inteligencia");
@@ -131,7 +131,11 @@ $gastos_categorias = json_encode([
             </a>
 
             <a href="#clusters" class="nav-item" data-section="clusters">
-                <span class="nav-icon">◎</span> Clusterização
+                <span class="nav-icon">◎</span> Cluster com numeros Absolutos
+            </a>
+
+            <a href="#clusters-taxa" class="nav-item" data-section="clusters-taxa">
+                <span class="nav-icon">◍</span> Cluster por Taxas
             </a>
 
             <a href="#tabela" class="nav-item" data-section="tabela">
@@ -336,10 +340,7 @@ $gastos_categorias = json_encode([
                     <canvas id="chart-cluster-scatter" height="220"></canvas>
                 </div>
             </div>
-            <div class="chart-card full-width" style="margin-top:16px;">
-                <div class="chart-label">Perfil de cada Cluster - Média dos Indicadores Normalizados</div>
-                <canvas id="chart-cluster-radar" height="120"></canvas>
-            </div>
+            
             <div class="table-wrapper" style="margin-top:16px;">
                 <table class="data-table">
                     <thead>
@@ -371,13 +372,21 @@ $gastos_categorias = json_encode([
                 <h2>Consulta por Indicador</h2>
             </div>
             <div class="table-controls">
+
                 <select name="tabela" id="tabela-select" class="control-select">
-                    <optgroup label="Criminalidade">
-                        <option value="mvi">Mortes Violentas Intencionais</option>
-                        <option value="trafico_de_drogas">Tráfico de Drogas</option>
-                        <option value="feminicidio">Feminicídio</option>
-                        <option value="roubo_furto_veiculos">Roubo/Furto Veículos</option>
-                        <option value="roubo_furto_celulares">Roubo/Furto Celulares</option>
+                    <optgroup label="Criminalidade — Números Absolutos">
+                        <option value="mvi_numeros_absolutos">MVI - Mortes Violentas Intencionais</option>
+                        <option value="trafico_de_drogas_numeros_absolutos">Tráfico de Drogas</option>
+                        <option value="feminicidio_numeros_absolutos">Feminicídio</option>
+                        <option value="roubo_furto_veiculos_numeros_absolutos">Roubo/Furto Veículos</option>
+                        <option value="roubo_furto_celulares_numeros_absolutos">Roubo/Furto Celulares</option>
+                    </optgroup>
+                    <optgroup label="Criminalidade Taxas ">
+                        <option value="mvi_taxa">MVI - Mortes Violentas Intencionais (Taxa por 100 mil habitantes)</option>
+                        <option value="trafico_de_drogas_taxa">Tráfico de Drogas (Taxa por 100 mil habitantes)</option>
+                        <option value="feminicidio_taxa">Feminicídio (Taxa por 100 mil mulheres)</option>
+                        <option value="roubo_furto_veiculos_taxa">Roubo/Furto Veículos (Taxa por 100 mil veículos)</option>
+                        <option value="roubo_furto_celulares_taxa">Roubo/Furto Celulares (Taxa por 100 mil habitantes)</option>
                     </optgroup>
                     <optgroup label="Investimentos">
                         <option value="policiamento">Policiamento</option>
@@ -386,6 +395,8 @@ $gastos_categorias = json_encode([
                         <option value="demais_servicos">Demais Serviços</option>
                     </optgroup>
                 </select>
+
+
                 <input type="text" id="busca-estado" class="control-select" placeholder="Filtrar estado...">
             </div>
             <div class="table-wrapper">
@@ -400,7 +411,7 @@ $gastos_categorias = json_encode([
                     </thead>
                     <tbody id="tabela-body">
                         <?php
-                        $dados_ini = getDados($conn, "mvi");
+                        $dados_ini = getDados($conn, "mvi_numeros_absolutos");
                         foreach ($dados_ini as $row):
                         ?>
                             <tr>
@@ -415,6 +426,46 @@ $gastos_categorias = json_encode([
             </div>
             <div class="fonte" id="fonte-texto">
                 <strong>MVI - Mortes Violentas Intencionais</strong> (por 100 mil hab.) - Fonte: Sec. Estaduais; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.
+            </div>
+        </section>
+
+
+        <!-- secao clusters taxa -->
+        <section id="clusters-taxa" class="section">
+            <div class="section-header">
+                <div class="section-tag">MACHINE LEARNING TAXAS</div>
+                <h2>Clusterização por Taxas K-Means</h2>
+            </div>
+            <div class="kpi-grid" id="cluster-taxa-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
+            <div class="charts-2col" style="margin-top:16px;">
+                <div class="chart-card">
+                    <div class="chart-label">Distribuição dos Estados por Cluster</div>
+                    <canvas id="chart-cluster-taxa-bar" height="220"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-label">MVI Médio (taxa) vs Investimento por Cluster</div>
+                    <canvas id="chart-cluster-taxa-scatter" height="220"></canvas>
+                </div>
+            </div>
+            
+            <div class="table-wrapper" style="margin-top:16px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th>Cluster</th>
+                            <th>Perfil</th>
+                            <th>MVI Médio (taxa/100mil)</th>
+                            <th>Policiamento Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cluster-taxa-tabela-body">
+                        <tr><td colspan="5" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="fonte">
+                <strong>Clusterização K-Means (k=4) · Taxas por 100 mil habitantes</strong> — Agrupamento dos 27 estados com base na média 2022–2024 de 5 indicadores de taxa (MVI, Tráfico, Feminicídio, Roubo de Veículos, Roubo de Celulares) + 4 de investimento. Features normalizadas via Z-score. Fonte: Fórum Brasileiro de Segurança Pública · STN.
             </div>
         </section>
 
@@ -481,15 +532,17 @@ $gastos_categorias = json_encode([
         };
 
         const FONTES = {
-            trafico_de_drogas: "<strong>Tráfico de drogas</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Estado do Alagoas; Polícia Civil do Distrito Federal; Projeções da População do Brasil e das Unidades da Federação - Instituto Brasileiro de Geografia e Estatística (IBGE); Fórum Brasileiro de Segurança Pública.",
-
-            feminicidio: "<strong>Feminicídio</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Ministério Publico do Acre; Polícia Civil do Distrito Federal; Instituto de Segurança Pública/RJ (ISP); Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
-
-            roubo_furto_veiculos: "<strong>Roubo/Furto de Veículos</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Ministério dos Transportes/Secretaria Nacional de Trânsito - SENATRAN; RENAVAM-Registro Nacional de Veículos Automotores; Fórum Brasileiro de Segurança Pública.",
-
-            roubo_furto_celulares: "<strong>Roubo/Furto de Celulares</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
-
-            mvi: "<strong>MVI - Mortes Violentas Intencionais</strong> (Números Absolutos de Casos) - Fonte: Secretarias Estaduais de Segurança Pública e/ou Defesa Social; Instituto de Segurança Pública/RJ (ISP); Ministério Público do Acre; Polícia Civil do Estado do Acre; Polícia Civil do Distrito Federal; Polícia Civil do Estado de Minas Gerais; Polícia Militar do Estado de Minas Gerais; Polícia Militar do Estado de Mato Grosso; Instituto Brasileiro de Geografia e Estatística (IBGE) - Projeções da População do Brasil e das Unidades da Federação; Fórum Brasileiro de Segurança Pública.",
+            mvi_numeros_absolutos: "<strong>MVI - Mortes Violentas Intencionais</strong> (Números Absolutos) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.",
+            trafico_de_drogas_numeros_absolutos: "<strong>Tráfico de Drogas</strong> (Números Absolutos) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+            feminicidio_numeros_absolutos: "<strong>Feminicídio</strong> (Números Absolutos) - Fonte: Secretarias Estaduais de Segurança Pública; Ministério Público do Acre; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_veiculos_numeros_absolutos: "<strong>Roubo/Furto de Veículos</strong> (Números Absolutos) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; SENATRAN; RENAVAM; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_celulares_numeros_absolutos: "<strong>Roubo/Furto de Celulares</strong> (Números Absolutos) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+            mvi_taxa: "<strong>MVI - Mortes Violentas Intencionais</strong> (Taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; Polícias Civis e Militares; IBGE; Fórum Brasileiro de Segurança Pública.",
+            trafico_de_drogas_taxa: "<strong>Tráfico de Drogas</strong> (Taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+            feminicidio_taxa: "<strong>Feminicídio</strong> (Taxa por 100 mil mulheres) - Fonte: Secretarias Estaduais de Segurança Pública; Ministério Público do Acre; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_veiculos_taxa: "<strong>Roubo/Furto de Veículos</strong> (Taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; SENATRAN; RENAVAM; Fórum Brasileiro de Segurança Pública.",
+            roubo_furto_celulares_taxa: "<strong>Roubo/Furto de Celulares</strong> (Taxa por 100 mil hab.) - Fonte: Secretarias Estaduais de Segurança Pública; ISP/RJ; IBGE; Fórum Brasileiro de Segurança Pública.",
+    
 
 
             policiamento: "<strong>Gastos em Policiamento</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
@@ -499,6 +552,9 @@ $gastos_categorias = json_encode([
             informacoes_e_inteligencia: "<strong>Gastos em Informações e Inteligência</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
 
             demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
+
+
+            
         };
     </script>
     <script src="dashboard.js"></script>

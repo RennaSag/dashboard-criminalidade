@@ -107,6 +107,7 @@ navItems.forEach(item => {
         if (target === 'criminalidade') renderCriminalidade();
         if (target === 'investimentos') renderInvestimentos();
         if (target === 'clusters') renderClusters();
+        if (target === 'clusters-taxa') renderClustersTaxa();
     });
 });
 
@@ -932,3 +933,154 @@ function renderClusters() {
                 '<tr><td colspan="5" style="text-align:center;color:#c0392b;padding:24px;">Erro ao carregar clusters. Verifique se clusters_dados.php está acessível.</td></tr>';
         });
 }
+
+// secao clusters TAXA
+let chartClusterTaxaBar = null;
+let chartClusterTaxaScatter = null;
+let chartClusterTaxaRadar = null;
+
+function renderClustersTaxa() {
+    fetch('clusters_taxa_dados.php')
+        .then(r => r.json())
+        .then(json => {
+            const rows = json.rows || [];
+            if (!rows.length) {
+                document.getElementById('cluster-taxa-tabela-body').innerHTML =
+                    '<tr><td colspan="5" style="text-align:center;color:#8a96a8;padding:24px;">Sem dados. Execute clusterizar_taxa.py primeiro.</td></tr>';
+                return;
+            }
+
+            // tabela
+            const tbody = document.getElementById('cluster-taxa-tabela-body');
+            if (tbody) {
+                tbody.innerHTML = rows.map(r => `
+                    <tr>
+                        <td class="estado-cell">${r.estado}</td>
+                        <td><span style="
+                            display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:900;
+                            background:${CLUSTER_CORES[r.cluster_id] ?? '#8a96a8'}22;
+                            color:${CLUSTER_CORES[r.cluster_id] ?? '#8a96a8'};
+                            border:1px solid ${CLUSTER_CORES[r.cluster_id] ?? '#8a96a8'}55;
+                        ">Cluster ${r.cluster_id}</span></td>
+                        <td style="font-size:13px;color:var(--text-dim)">${r.perfil}</td>
+                        <td style="font-family:var(--font-serif);font-weight:700;color:var(--danger)">${fmtNum(r.score_mvi)}</td>
+                        <td style="font-family:var(--font-serif);font-weight:700;color:var(--invest)">${fmtBRL(r.score_investimento)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // KPI cards
+            const kpiGrid = document.getElementById('cluster-taxa-kpi-grid');
+            if (kpiGrid) {
+                const kpiClasses = ['kpi-invest', 'kpi-danger', 'kpi-warning', 'kpi-alert'];
+                kpiGrid.innerHTML = [0,1,2,3].map(id => {
+                    const grupo = rows.filter(r => r.cluster_id === id);
+                    const perfil = grupo[0]?.perfil ?? `Cluster ${id}`;
+                    return `
+                        <div class="kpi-card ${kpiClasses[id]}">
+                            <div class="kpi-label">Cluster ${id}</div>
+                            <div class="kpi-value" style="font-size:26px">${grupo.length}</div>
+                            <div class="kpi-unit">estados</div>
+                            <div class="kpi-unit" style="margin-top:6px;font-size:11px;font-weight:700;color:var(--text-dim)">${perfil}</div>
+                            <div class="kpi-bar" style="margin-top:10px">
+                                <div class="kpi-fill" style="width:${(grupo.length/27)*100}%"></div>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+
+            // bar chart
+            const ctxBar = document.getElementById('chart-cluster-taxa-bar');
+            if (ctxBar) {
+                if (chartClusterTaxaBar) { chartClusterTaxaBar.destroy(); chartClusterTaxaBar = null; }
+                const contagem = [0,1,2,3].map(id => rows.filter(r => r.cluster_id === id).length);
+                chartClusterTaxaBar = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cluster 0','Cluster 1','Cluster 2','Cluster 3'],
+                        datasets: [{
+                            label: 'Nº de Estados',
+                            data: contagem,
+                            backgroundColor: CLUSTER_CORES.map(c => c + 'cc'),
+                            borderColor: CLUSTER_CORES,
+                            borderWidth: 1, borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { afterLabel: ctx => rows.filter(r => r.cluster_id === ctx.dataIndex).map(r => r.estado).join(', ') } }
+                        },
+                        scales: {
+                            x: { grid: GRID },
+                            y: { grid: GRID, beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Quantidade de Estados', color: '#8a96a8' } }
+                        },
+                    }
+                });
+            }
+
+            // scatter
+            const ctxScatter = document.getElementById('chart-cluster-taxa-scatter');
+            if (ctxScatter) {
+                if (chartClusterTaxaScatter) { chartClusterTaxaScatter.destroy(); chartClusterTaxaScatter = null; }
+                chartClusterTaxaScatter = new Chart(ctxScatter, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [0,1,2,3].map(id => ({
+                            label: `Cluster ${id}`,
+                            data: rows.filter(r => r.cluster_id === id).map(r => ({ x: r.score_investimento, y: r.score_mvi, label: r.estado })),
+                            backgroundColor: CLUSTER_CORES[id] + 'bb',
+                            borderColor: CLUSTER_CORES[id],
+                            pointRadius: 8, pointHoverRadius: 11,
+                        }))
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11, weight: '700' } } },
+                            tooltip: { callbacks: { label: ctx => `${ctx.raw.label} — MVI: ${fmtNum(ctx.raw.y)} | Pol.: ${fmtBRL(ctx.raw.x)}` } }
+                        },
+                        scales: {
+                            x: { grid: GRID, title: { display: true, text: 'Policiamento Médio (R$)', color: '#8a96a8' }, ticks: { callback: v => v >= 1e9 ? (v/1e9).toFixed(1)+'B' : v >= 1e6 ? (v/1e6).toFixed(0)+'M' : v } },
+                            y: { grid: GRID, title: { display: true, text: 'MVI Médio (por 100 mil hab.)', color: '#8a96a8' } }
+                        },
+                    }
+                });
+            }
+
+            // radar
+            const ctxRadar = document.getElementById('chart-cluster-taxa-radar');
+            if (ctxRadar) {
+                if (chartClusterTaxaRadar) { chartClusterTaxaRadar.destroy(); chartClusterTaxaRadar = null; }
+                chartClusterTaxaRadar = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: ['MVI (taxa)', 'Policiamento'],
+                        datasets: [0,1,2,3].map(id => {
+                            const grupo = rows.filter(r => r.cluster_id === id);
+                            if (!grupo.length) return null;
+                            const avgMvi = grupo.reduce((s,r) => s + r.score_mvi, 0) / grupo.length;
+                            const avgInv = grupo.reduce((s,r) => s + r.score_investimento, 0) / grupo.length;
+                            return {
+                                label: `Cluster ${id}`,
+                                data: [avgMvi, avgInv / 1e8],
+                                backgroundColor: CLUSTER_CORES[id] + '33',
+                                borderColor: CLUSTER_CORES[id],
+                                borderWidth: 2,
+                                pointBackgroundColor: CLUSTER_CORES[id],
+                                pointRadius: 4,
+                            };
+                        }).filter(Boolean)
+                    },
+                    options: {
+                        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 16, font: { size: 11, weight: '700' } } } },
+                        scales: { r: { grid: { color: 'rgba(0,0,0,0.07)' }, ticks: { display: false }, pointLabels: { font: { size: 12, weight: '700' }, color: '#4a5568' } } },
+                    }
+                });
+            }
+        })
+        .catch(() => {
+            const tbody = document.getElementById('cluster-taxa-tabela-body');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c0392b;padding:24px;">Erro ao carregar. Execute clusterizar_taxa.py primeiro.</td></tr>';
+        });
+}
+

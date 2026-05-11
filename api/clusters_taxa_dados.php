@@ -1,5 +1,5 @@
 <?php
-include("conectar.php");
+include("../conectar.php");
 
 $sql = "SELECT estado, cluster_id, perfil, score_mvi, score_investimento FROM clusters_taxa ORDER BY cluster_id, estado";
 $result = $conn->query($sql);

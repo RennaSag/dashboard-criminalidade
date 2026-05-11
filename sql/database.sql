@@ -1,12 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Tempo de geração: 12/04/2026 às 07:39
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -17,15 +8,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Banco de dados: `dadostcc`
---
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `defesa_civil`
---
 
 CREATE TABLE `defesa_civil` (
   `id` int(11) NOT NULL,
@@ -35,9 +17,7 @@ CREATE TABLE `defesa_civil` (
   `ano2024` decimal(15,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `defesa_civil`
---
+
 
 INSERT INTO `defesa_civil` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 66240462.65, 92970727.00, 105712203.78),
@@ -68,11 +48,8 @@ INSERT INTO `defesa_civil` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VAL
 (26, 'Sergipe', 116715094.59, 111250343.59, 140313136.06),
 (27, 'Tocantins', 16650381.73, 6473543.11, 4666368.72);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `demais_servicos`
---
+
 
 CREATE TABLE `demais_servicos` (
   `id` int(11) NOT NULL,
@@ -82,9 +59,7 @@ CREATE TABLE `demais_servicos` (
   `ano2024` decimal(16,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `demais_servicos`
---
+
 
 INSERT INTO `demais_servicos` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 265236851.58, 263486234.52, 293767414.02),
@@ -115,11 +90,7 @@ INSERT INTO `demais_servicos` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) 
 (26, 'Sergipe', 540200582.52, 523297616.50, 882325298.18),
 (27, 'Tocantins', 1112026416.23, 1226729366.13, 1368474799.80);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `feminicidio`
---
 
 CREATE TABLE `feminicidio` (
   `id` int(11) NOT NULL,
@@ -129,9 +100,7 @@ CREATE TABLE `feminicidio` (
   `ano2024` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `feminicidio`
---
+
 
 INSERT INTO `feminicidio` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 9, 10, 8),
@@ -162,11 +131,7 @@ INSERT INTO `feminicidio` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALU
 (26, 'Sergipe', 19, 16, 10),
 (27, 'Tocantins', 14, 18, 13);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `informacoes_e_inteligencia`
---
 
 CREATE TABLE `informacoes_e_inteligencia` (
   `id` int(11) NOT NULL,
@@ -176,9 +141,7 @@ CREATE TABLE `informacoes_e_inteligencia` (
   `ano2024` decimal(15,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `informacoes_e_inteligencia`
---
+
 
 INSERT INTO `informacoes_e_inteligencia` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 322467132.83, 319109947.00, 355481202.59),
@@ -209,11 +172,7 @@ INSERT INTO `informacoes_e_inteligencia` (`id`, `estado`, `ano2022`, `ano2023`, 
 (26, 'Sergipe', 3122.94, NULL, 9242730.14),
 (27, 'Tocantins', NULL, NULL, 39670.24);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `mvi`
---
 
 CREATE TABLE `mvi` (
   `id` int(11) NOT NULL,
@@ -223,9 +182,7 @@ CREATE TABLE `mvi` (
   `ano2024` decimal(5,1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `mvi`
---
+
 
 INSERT INTO `mvi` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 237.0, 214.0, 179.0),
@@ -256,11 +213,7 @@ INSERT INTO `mvi` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (26, 'Sergipe', 768.0, 689.0, 522.0),
 (27, 'Tocantins', 485.0, 430.0, 312.0);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `policiamento`
---
 
 CREATE TABLE `policiamento` (
   `id` int(11) NOT NULL,
@@ -270,9 +223,7 @@ CREATE TABLE `policiamento` (
   `ano2024` decimal(15,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `policiamento`
---
+
 
 INSERT INTO `policiamento` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 365449790.66, 373475173.52, 392941266.16),
@@ -303,11 +254,7 @@ INSERT INTO `policiamento` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VAL
 (26, 'Sergipe', 687357723.20, 681149541.13, 767011914.03),
 (27, 'Tocantins', 74116924.74, 71949617.09, 91284046.23);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `roubo_furto_celulares`
---
 
 CREATE TABLE `roubo_furto_celulares` (
   `id` int(11) NOT NULL,
@@ -317,9 +264,7 @@ CREATE TABLE `roubo_furto_celulares` (
   `ano2024` decimal(7,1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `roubo_furto_celulares`
---
+
 
 INSERT INTO `roubo_furto_celulares` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 4689.0, 3976.0, 3286.0),
@@ -350,11 +295,7 @@ INSERT INTO `roubo_furto_celulares` (`id`, `estado`, `ano2022`, `ano2023`, `ano2
 (26, 'Sergipe', 10285.0, 9138.0, 7576.0),
 (27, 'Tocantins', 5263.0, 3806.0, 4041.0);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `roubo_furto_veiculos`
---
 
 CREATE TABLE `roubo_furto_veiculos` (
   `id` int(11) NOT NULL,
@@ -364,9 +305,7 @@ CREATE TABLE `roubo_furto_veiculos` (
   `ano2024` decimal(6,1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `roubo_furto_veiculos`
---
+
 
 INSERT INTO `roubo_furto_veiculos` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 1241.0, 1347.0, 839.0),
@@ -397,11 +336,7 @@ INSERT INTO `roubo_furto_veiculos` (`id`, `estado`, `ano2022`, `ano2023`, `ano20
 (26, 'Sergipe', 2515.0, 1709.0, 1296.0),
 (27, 'Tocantins', 1917.0, 1223.0, 3097.0);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `trafico_de_drogas`
---
 
 CREATE TABLE `trafico_de_drogas` (
   `id` int(11) NOT NULL,
@@ -411,9 +346,7 @@ CREATE TABLE `trafico_de_drogas` (
   `ano2024` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `trafico_de_drogas`
---
+
 
 INSERT INTO `trafico_de_drogas` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`) VALUES
 (1, 'Acre', 802, 752, 843),
@@ -444,119 +377,76 @@ INSERT INTO `trafico_de_drogas` (`id`, `estado`, `ano2022`, `ano2023`, `ano2024`
 (26, 'Sergipe', 1025, 1466, 1379),
 (27, 'Tocantins', 755, 1013, 890);
 
---
--- Índices para tabelas despejadas
---
 
---
--- Índices de tabela `defesa_civil`
---
+
 ALTER TABLE `defesa_civil`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `demais_servicos`
---
+
 ALTER TABLE `demais_servicos`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `feminicidio`
---
+
 ALTER TABLE `feminicidio`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `informacoes_e_inteligencia`
---
+
 ALTER TABLE `informacoes_e_inteligencia`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `mvi`
---
+
 ALTER TABLE `mvi`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `policiamento`
---
+
 ALTER TABLE `policiamento`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `roubo_furto_celulares`
---
+
 ALTER TABLE `roubo_furto_celulares`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `roubo_furto_veiculos`
---
+
 ALTER TABLE `roubo_furto_veiculos`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `trafico_de_drogas`
---
+
 ALTER TABLE `trafico_de_drogas`
   ADD PRIMARY KEY (`id`);
 
---
--- AUTO_INCREMENT para tabelas despejadas
---
 
---
--- AUTO_INCREMENT de tabela `defesa_civil`
---
 ALTER TABLE `defesa_civil`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `demais_servicos`
---
+
 ALTER TABLE `demais_servicos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `feminicidio`
---
+
 ALTER TABLE `feminicidio`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `informacoes_e_inteligencia`
---
+
 ALTER TABLE `informacoes_e_inteligencia`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `mvi`
---
+
 ALTER TABLE `mvi`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `policiamento`
---
+
 ALTER TABLE `policiamento`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `roubo_furto_celulares`
---
+
 ALTER TABLE `roubo_furto_celulares`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `roubo_furto_veiculos`
---
+
 ALTER TABLE `roubo_furto_veiculos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
---
--- AUTO_INCREMENT de tabela `trafico_de_drogas`
---
+
 ALTER TABLE `trafico_de_drogas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 COMMIT;

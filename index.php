@@ -102,7 +102,7 @@ $gastos_categorias = json_encode([
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
 </head>
 
 <body>
@@ -130,8 +130,8 @@ $gastos_categorias = json_encode([
                 <span class="nav-icon">◆</span> Investimentos
             </a>
 
-            <a href="#clusters" class="nav-item" data-section="clusters">
-                <span class="nav-icon">◎</span> Cluster com numeros Absolutos
+            <a href="#analise-ml" class="nav-item" data-section="analise-ml">
+                <span class="nav-icon">◎</span> Análise Preditiva
             </a>
 
             <a href="#clusters-taxa" class="nav-item" data-section="clusters-taxa">
@@ -323,46 +323,140 @@ $gastos_categorias = json_encode([
 
         </section>
 
-        <!-- secao clusters -->
-        <section id="clusters" class="section">
-            <div class="section-header">
-                <div class="section-tag">MACHINE LEARNING</div>
-                <h2>Clusterização dos Estados · K-Means</h2>
-            </div>
-            <div class="kpi-grid" id="cluster-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
-            <div class="charts-2col" style="margin-top:16px;">
-                <div class="chart-card">
-                    <div class="chart-label">Distribuição dos Estados por Cluster</div>
-                    <canvas id="chart-cluster-bar" height="220"></canvas>
+<!-- ============================================================
+     ============================================================ -->
+
+<!-- secao analise preditiva -->
+<section id="analise-ml" class="section">
+    <div class="section-header">
+        <div class="section-tag">MACHINE LEARNING · REGRESSÃO & CORRELAÇÃO</div>
+        <h2>Análise Preditiva e Eficiência de Investimento</h2>
+    </div>
+
+    <!-- KPI rápidos (preenchidos via JS) -->
+    <div class="kpi-grid" id="ml-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
+
+    <!-- ── Aba 1: Previsão ──────────────────────────────────────── -->
+    <div class="ml-tabs" style="display:flex;gap:8px;margin:24px 0 16px;">
+        <button class="ml-tab active" data-tab="previsao">📈 Previsão 2025–2026</button>
+        <button class="ml-tab"        data-tab="correlacao">🔗 Correlação de Pearson</button>
+        <button class="ml-tab"        data-tab="eficiencia">🏆 Eficiência de Investimento</button>
+    </div>
+
+    <!-- painel previsao -->
+    <div id="ml-painel-previsao" class="ml-painel active">
+        <div class="charts-2col">
+            <div class="chart-card">
+                <div class="chart-label">Tendência da Taxa de MVI por Estado (2022–2026)</div>
+                <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">
+                    <label style="font-size:12px;font-weight:700;color:var(--text-muted);">Estado:</label>
+                    <select id="previsao-estado-select" class="control-select" style="padding:6px 28px 6px 10px;font-size:13px;"></select>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-label">MVI Médio vs Investimento em Policiamento por Cluster</div>
-                    <canvas id="chart-cluster-scatter" height="220"></canvas>
-                </div>
+                <canvas id="chart-previsao-linha" height="220"></canvas>
             </div>
-            
-            <div class="table-wrapper" style="margin-top:16px;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Estado</th>
-                            <th>Cluster</th>
-                            <th>Perfil</th>
-                            <th>MVI Médio</th>
-                            <th>Policiamento Médio</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cluster-tabela-body">
-                        <tr>
-                            <td colspan="5" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="chart-card">
+                <div class="chart-label">Previsão 2025 vs 2026 — Todos os Estados</div>
+                <canvas id="chart-previsao-bar" height="220"></canvas>
             </div>
-            <div class="fonte">
-                <strong>Clusterização K-Means (k=4)</strong> — Agrupamento dos 27 estados brasileiros com base na média 2022–2024 de 9 indicadores: MVI, Tráfico de Drogas, Feminicídio, Roubo/Furto de Veículos, Roubo/Furto de Celulares, Policiamento, Defesa Civil, Informações e Inteligência, e Demais Serviços. Features normalizadas via Z-score (StandardScaler). Fonte: Fórum Brasileiro de Segurança Pública · STN.
+        </div>
+
+        <div class="table-wrapper" style="margin-top:16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>MVI 2022</th>
+                        <th>MVI 2023</th>
+                        <th>MVI 2024</th>
+                        <th>Previsão 2025</th>
+                        <th>Previsão 2026</th>
+                        <th>Tendência</th>
+                        <th>R²</th>
+                    </tr>
+                </thead>
+                <tbody id="previsao-tabela-body">
+                    <tr><td colspan="8" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="fonte">
+            <strong>Regressão Linear (OLS)</strong> — Projeção da taxa de MVI (por 100 mil hab.) para 2025 e 2026, treinada com os anos 2022–2024 por estado. Coeficiente angular indica variação anual esperada. R² indica o ajuste do modelo aos dados históricos. Fonte dos dados: Fórum Brasileiro de Segurança Pública · IBGE.
+        </div>
+    </div>
+
+    <!-- painel correlacao -->
+    <div id="ml-painel-correlacao" class="ml-painel" style="display:none;">
+        <div class="charts-2col">
+            <div class="chart-card">
+                <div class="chart-label">Coeficiente de Pearson (r) — Investimento Total × Taxa de MVI</div>
+                <canvas id="chart-correlacao-bar" height="260"></canvas>
             </div>
-        </section>
+            <div class="chart-card">
+                <div class="chart-label">Scatter: Investimento Médio (R$) × MVI Médio (taxa/100mil)</div>
+                <canvas id="chart-correlacao-scatter" height="260"></canvas>
+            </div>
+        </div>
+
+        <div class="table-wrapper" style="margin-top:16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>Pearson r</th>
+                        <th>p-value</th>
+                        <th>Força</th>
+                        <th>Direção</th>
+                        <th>Invest. Médio</th>
+                        <th>MVI Médio</th>
+                    </tr>
+                </thead>
+                <tbody id="correlacao-tabela-body">
+                    <tr><td colspan="7" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="fonte">
+            <strong>Correlação de Pearson</strong> — Mede a associação linear entre o investimento público total em segurança (policiamento + defesa civil + inteligência + demais serviços) e a taxa de MVI por estado, usando os 3 pares de dados anuais (2022, 2023, 2024). r &gt; 0 indica que mais investimento acompanha mais criminalidade (estados estruturalmente mais violentos recebem mais recursos); r &lt; 0 indica associação inversa. Fonte: STN · Fórum Brasileiro de Segurança Pública.
+        </div>
+    </div>
+
+    <!-- painel eficiencia -->
+    <div id="ml-painel-eficiencia" class="ml-painel" style="display:none;">
+        <div class="charts-2col">
+            <div class="chart-card">
+                <div class="chart-label">Ranking de Eficiência — Redução de MVI por Bilhão Investido</div>
+                <canvas id="chart-eficiencia-bar" height="300"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-label">Variação % do MVI (2022→2024) por Estado</div>
+                <canvas id="chart-variacao-mvi" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="table-wrapper" style="margin-top:16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Estado</th>
+                        <th>MVI 2022</th>
+                        <th>MVI 2024</th>
+                        <th>Variação MVI</th>
+                        <th>Variação %</th>
+                        <th>Invest. Médio (R$ B)</th>
+                        <th>Score Eficiência</th>
+                    </tr>
+                </thead>
+                <tbody id="eficiencia-tabela-body">
+                    <tr><td colspan="8" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="fonte">
+            <strong>Score de Eficiência</strong> = (-ΔMVItaxa) ÷ (Investimento médio em R$ bilhões). Quanto maior o score, mais o estado reduziu sua taxa de mortes violentas por real investido. Score negativo indica piora no período. Investimento = soma das 4 categorias (policiamento, defesa civil, inteligência, demais serviços), média 2022–2024. Fonte: STN · Fórum Brasileiro de Segurança Pública.
+        </div>
+    </div>
+</section>
 
 
         <!-- secao tabela -->
@@ -557,7 +651,5 @@ $gastos_categorias = json_encode([
             
         };
     </script>
-    <script src="dashboard.js"></script>
+    <script src="assets/js/dashboard.js"></script>
 </body>
-
-</html>

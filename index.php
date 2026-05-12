@@ -323,8 +323,6 @@ $gastos_categorias = json_encode([
 
         </section>
 
-<!-- ============================================================
-     ============================================================ -->
 
 <!-- secao analise preditiva -->
 <section id="analise-ml" class="section">
@@ -336,11 +334,11 @@ $gastos_categorias = json_encode([
     <!-- KPI rápidos (preenchidos via JS) -->
     <div class="kpi-grid" id="ml-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
 
-    <!-- ── Aba 1: Previsão ──────────────────────────────────────── -->
+    
     <div class="ml-tabs" style="display:flex;gap:8px;margin:24px 0 16px;">
-        <button class="ml-tab active" data-tab="previsao">📈 Previsão 2025–2026</button>
-        <button class="ml-tab"        data-tab="correlacao">🔗 Correlação de Pearson</button>
-        <button class="ml-tab"        data-tab="eficiencia">🏆 Eficiência de Investimento</button>
+        <button class="ml-tab active" data-tab="previsao">Previsão 2025–2026</button>
+        <button class="ml-tab"        data-tab="correlacao">Correlação de Pearson</button>
+        <button class="ml-tab"        data-tab="eficiencia">Eficiência de Investimento</button>
     </div>
 
     <!-- painel previsao -->

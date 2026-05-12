@@ -9,6 +9,8 @@ Chart.defaults.plugins.legend.labels.color = '#4a5568';
 
 const GRID = { color: 'rgba(0,0,0,0.06)', drawBorder: false };
 
+const CLUSTER_CORES = ['#1a56a0', '#c0392b', '#d4860a', '#1a7a40'];
+
 const C = {
     danger: '#c0392b',
     warning: '#d4860a',
@@ -100,7 +102,7 @@ navItems.forEach(item => {
 
         const topbarControls = document.querySelector('.topbar-controls');
         const indSelector = document.getElementById('indicador-selector');
-        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml') ? 'none' : 'flex';
+        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml' || target === 'clusters-taxa') ? 'none' : 'flex';
         if (indSelector) indSelector.style.display = (target === 'investimentos' || target === 'criminalidade') ? 'none' : '';
 
         if (target === 'mapa') setTimeout(initMapa, 80);
@@ -747,6 +749,7 @@ function filtrarTabela() {
 
 if (tabelaSelect) tabelaSelect.addEventListener('change', () => carregarTabela(tabelaSelect.value));
 if (buscaInput) buscaInput.addEventListener('input', filtrarTabela);
+if (tabelaSelect) carregarTabela(tabelaSelect.value);  // ← adicionar esta linha
 
 
 
@@ -763,7 +766,7 @@ document.addEventListener('click', function(e) {
     if (painel) painel.style.display = 'block';
 });
 
-
+// ── Gráficos ML (instâncias globais para destroy) ────────────────────────────
 let chartPrevisaoLinha   = null;
 let chartPrevisaoBar     = null;
 let chartCorrelacaoBar   = null;
@@ -771,11 +774,11 @@ let chartCorrelacaoSc    = null;
 let chartEficienciaBar   = null;
 let chartVariacaoMvi     = null;
 
-
+// ── Cores utilitárias ─────────────────────────────────────────────────────────
 function corTendencia(t) { return t === 'queda' ? C.ok : C.danger; }
 function corVariacao(v)  { return v <= 0 ? C.ok : C.danger; }
 
-
+// ── Carrega e renderiza toda a seção ML ──────────────────────────────────────
 function renderAnaliseMl() {
     Promise.all([
         fetch('api/ml_dados.php?tipo=previsao').then(r => r.json()),
@@ -806,7 +809,7 @@ function renderAnaliseMl() {
     });
 }
 
-
+// ── KPI cards do topo ─────────────────────────────────────────────────────────
 function renderMlKpis(prevRows, corrRows, eficRows) {
     const grid = document.getElementById('ml-kpi-grid');
     if (!grid) return;
@@ -845,7 +848,7 @@ function renderMlKpis(prevRows, corrRows, eficRows) {
     `;
 }
 
-
+// ── Previsão de MVI ───────────────────────────────────────────────────────────
 function renderPrevisao(rows) {
     // select de estado
     const sel = document.getElementById('previsao-estado-select');
@@ -1042,7 +1045,7 @@ function renderCorrelacao(rows) {
     }
 }
 
-
+// ── Eficiência de Investimento ────────────────────────────────────────────────
 function renderEficiencia(rows) {
     // bar: score eficiencia
     const ctxEfic = document.getElementById('chart-eficiencia-bar');
@@ -1119,6 +1122,7 @@ function renderEficiencia(rows) {
     }
 }
 
+// secao clusters TAXA
 let chartClusterTaxaBar = null;
 let chartClusterTaxaScatter = null;
 let chartClusterTaxaRadar = null;

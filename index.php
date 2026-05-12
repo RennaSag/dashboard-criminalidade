@@ -138,16 +138,23 @@ $gastos_categorias = json_encode([
                 <span class="nav-icon">◍</span> Cluster por Taxas
             </a>
 
+            <a href="#regressao" class="nav-item" data-section="regressao">
+                <span class="nav-icon">◱</span> Regressão Múltipla
+            </a>
+
             <a href="#tabela" class="nav-item" data-section="tabela">
                 <span class="nav-icon">▦</span> Dados Detalhados
             </a>
+
+            
+
         </nav>
         <div class="sidebar-footer">
             <div class="update-badge">
                 <span class="pulse-dot"></span>
                 Dados: 2022–2024
             </div>
-            <div class="fonte-text">Fórum Brasileiro de Seg. Pública · STN</div>
+            <div class="fonte-text">Fórum Brasileiro de Seg. Pública - STN</div>
         </div>
     </aside>
 
@@ -245,7 +252,7 @@ $gastos_categorias = json_encode([
                         <div class="legend-labels"><span>Menor</span><span>Maior</span></div>
                     </div>
                     <div id="map-estado-info" class="estado-info-box">
-                        <div class="info-hint">↖ Passe o cursor sobre um estado</div>
+                        <div class="info-hint"> Passe o cursor sobre um estado</div>
                     </div>
 
                 </div>
@@ -455,6 +462,82 @@ $gastos_categorias = json_encode([
         </div>
     </div>
 </section>
+
+
+        <!-- SEÇÃO PRINCIPAL -->
+        <section id="regressao" class="section">
+            <div class="section-header">
+                <div class="section-tag">MACHINE LEARNING · REGRESSÃO MÚLTIPLA OLS</div>
+                <h2>Impacto do Investimento na Taxa de MVI</h2>
+            </div>
+
+            <!-- KPI dos modelos (preenchido via JS) -->
+            <div class="kpi-grid" id="reg-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
+
+            <!-- Seletor de modelo -->
+            <div style="display:flex;align-items:center;gap:12px;margin:20px 0 16px;">
+                <label style="font-size:12px;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Modelo:</label>
+                <select id="reg-modelo-select" class="control-select"></select>
+                <span id="reg-modelo-desc" style="font-size:13px;color:var(--text-muted);font-style:italic;"></span>
+            </div>
+
+            <div class="charts-2col">
+                <!-- gráfico de coeficientes -->
+                <div class="chart-card">
+                    <div class="chart-label">Coeficientes — Efeito de cada R$ 1 bilhão investido na Taxa de MVI</div>
+                    <canvas id="chart-reg-coef" height="240"></canvas>
+                </div>
+                <!-- comparativo R² dos modelos -->
+                <div class="chart-card">
+                    <div class="chart-label">Comparativo de Ajuste entre Modelos (R² Ajustado)</div>
+                    <canvas id="chart-reg-r2" height="240"></canvas>
+                </div>
+            </div>
+
+            <!-- tabela de coeficientes -->
+            <div class="table-wrapper" style="margin-top:16px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Variável</th>
+                            <th>Coeficiente</th>
+                            <th>Erro Padrão</th>
+                            <th>t-stat</th>
+                            <th>p-value</th>
+                            <th>Significativo</th>
+                            <th>Interpretação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reg-coef-body">
+                        <tr><td colspan="7" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- tabela de modelos -->
+            <div class="table-wrapper" style="margin-top:12px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Modelo</th>
+                            <th>R²</th>
+                            <th>R² Ajustado</th>
+                            <th>F-statistic</th>
+                            <th>p-value (F)</th>
+                            <th>Observações</th>
+                            <th>Significativo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reg-modelos-body">
+                        <tr><td colspan="7" style="text-align:center;color:#8a96a8;padding:24px;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="fonte">
+                <strong>Regressão Múltipla OLS (Mínimos Quadrados Ordinários)</strong> — Dados em painel com 81 observações (27 estados × 3 anos: 2022, 2023, 2024). Variável dependente: taxa de MVI por 100 mil hab. Variáveis independentes: investimento por categoria em R$ bilhões. R² indica a proporção da variância do MVI explicada pelo modelo. R² ajustado penaliza a inclusão de variáveis desnecessárias. F-statistic testa se o modelo como um todo é significativo. p-value &lt; 0,05 indica que o coeficiente é estatisticamente diferente de zero. Fonte dos dados: Fórum Brasileiro de Segurança Pública · STN.
+            </div>
+        </section>
 
 
         <!-- secao tabela -->

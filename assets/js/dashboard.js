@@ -102,14 +102,16 @@ navItems.forEach(item => {
 
         const topbarControls = document.querySelector('.topbar-controls');
         const indSelector = document.getElementById('indicador-selector');
-        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml' || target === 'clusters-taxa') ? 'none' : 'flex';
+        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml' || target === 'clusters-taxa' || target === 'regressao') ? 'none' : 'flex';
         if (indSelector) indSelector.style.display = (target === 'investimentos' || target === 'criminalidade') ? 'none' : '';
 
         if (target === 'mapa') setTimeout(initMapa, 80);
         if (target === 'criminalidade') renderCriminalidade();
         if (target === 'investimentos') renderInvestimentos();
+
         if (target === 'analise-ml') renderAnaliseMl();
         if (target === 'clusters-taxa') renderClustersTaxa();
+        if (target === 'regressao') renderRegressao();
         
     });
 });
@@ -766,7 +768,7 @@ document.addEventListener('click', function(e) {
     if (painel) painel.style.display = 'block';
 });
 
-// ── Gráficos ML (instâncias globais para destroy) ────────────────────────────
+
 let chartPrevisaoLinha   = null;
 let chartPrevisaoBar     = null;
 let chartCorrelacaoBar   = null;
@@ -774,11 +776,11 @@ let chartCorrelacaoSc    = null;
 let chartEficienciaBar   = null;
 let chartVariacaoMvi     = null;
 
-// ── Cores utilitárias ─────────────────────────────────────────────────────────
+
 function corTendencia(t) { return t === 'queda' ? C.ok : C.danger; }
 function corVariacao(v)  { return v <= 0 ? C.ok : C.danger; }
 
-// ── Carrega e renderiza toda a seção ML ──────────────────────────────────────
+
 function renderAnaliseMl() {
     Promise.all([
         fetch('api/ml_dados.php?tipo=previsao').then(r => r.json()),
@@ -809,7 +811,7 @@ function renderAnaliseMl() {
     });
 }
 
-// ── KPI cards do topo ─────────────────────────────────────────────────────────
+
 function renderMlKpis(prevRows, corrRows, eficRows) {
     const grid = document.getElementById('ml-kpi-grid');
     if (!grid) return;
@@ -848,7 +850,7 @@ function renderMlKpis(prevRows, corrRows, eficRows) {
     `;
 }
 
-// ── Previsão de MVI ───────────────────────────────────────────────────────────
+
 function renderPrevisao(rows) {
     // select de estado
     const sel = document.getElementById('previsao-estado-select');
@@ -1045,7 +1047,7 @@ function renderCorrelacao(rows) {
     }
 }
 
-// ── Eficiência de Investimento ────────────────────────────────────────────────
+
 function renderEficiencia(rows) {
     // bar: score eficiencia
     const ctxEfic = document.getElementById('chart-eficiencia-bar');
@@ -1270,4 +1272,285 @@ function renderClustersTaxa() {
             const tbody = document.getElementById('cluster-taxa-tabela-body');
             if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c0392b;padding:24px;">Erro ao carregar. Execute clusterizar_taxa.py primeiro.</td></tr>';
         });
+}
+
+
+let chartRegCoef = null;
+let chartRegR2   = null;
+let regressaoModelos = [];
+
+function renderRegressao() {
+    fetch('api/regressao_dados.php?tipo=modelos')
+        .then(r => r.json())
+        .then(json => {
+            const modelos = json.rows || [];
+            if (!modelos.length) {
+                ['reg-coef-body','reg-modelos-body'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#8a96a8;padding:24px;">Sem dados. Execute regressao_multipla.py primeiro.</td></tr>';
+                });
+                return;
+            }
+
+            regressaoModelos = modelos;
+            renderRegKpis(modelos);
+            renderRegR2Chart(modelos);
+            popularSelectModelo(modelos);
+            renderRegModelos(modelos);
+
+            // carrega coeficientes do primeiro modelo (maior R²adj)
+            carregarCoeficientes(modelos[0].nome);
+        })
+        .catch(() => {
+            ['reg-coef-body','reg-modelos-body'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c0392b;padding:24px;">Erro ao carregar. Execute regressao_multipla.py e verifique api/regressao_dados.php.</td></tr>';
+            });
+        });
+}
+
+
+function renderRegKpis(modelos) {
+    const grid = document.getElementById('reg-kpi-grid');
+    if (!grid) return;
+
+    const melhor = modelos[0]; // já ordenado por r2_adj DESC
+    const completo = modelos.find(m => m.nome === 'Modelo Completo') || melhor;
+    const nSig = modelos.filter(m => m.significativo).length;
+
+    grid.innerHTML = `
+        <div class="kpi-card kpi-invest">
+            <div class="kpi-label">Melhor R² Ajustado</div>
+            <div class="kpi-value" style="font-size:28px">${(melhor.r2_adj * 100).toFixed(1)}%</div>
+            <div class="kpi-unit">${melhor.nome}</div>
+            <div class="kpi-bar"><div class="kpi-fill" style="width:${melhor.r2_adj*100}%"></div></div>
+        </div>
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-label">R² Modelo Completo</div>
+            <div class="kpi-value" style="font-size:28px">${(completo.r2 * 100).toFixed(1)}%</div>
+            <div class="kpi-unit">variância do MVI explicada</div>
+            <div class="kpi-bar"><div class="kpi-fill" style="width:${completo.r2*100}%"></div></div>
+        </div>
+        <div class="kpi-card kpi-${completo.significativo ? 'invest' : 'danger'}">
+            <div class="kpi-label">F-statistic (Completo)</div>
+            <div class="kpi-value" style="font-size:28px">${completo.f_stat.toFixed(2)}</div>
+            <div class="kpi-unit">p = ${completo.f_pvalue.toFixed(4)} ${completo.significativo ? '✓ sig.' : '✗ não sig.'}</div>
+            <div class="kpi-bar"><div class="kpi-fill" style="width:${Math.min(100, completo.f_stat)}%"></div></div>
+        </div>
+        <div class="kpi-card kpi-invest">
+            <div class="kpi-label">Observações (Painel)</div>
+            <div class="kpi-value" style="font-size:28px">${completo.n_obs}</div>
+            <div class="kpi-unit">27 estados × 3 anos</div>
+            <div class="kpi-bar"><div class="kpi-fill" style="width:100%"></div></div>
+        </div>
+    `;
+}
+
+
+function popularSelectModelo(modelos) {
+    const sel = document.getElementById('reg-modelo-select');
+    if (!sel) return;
+    sel.innerHTML = modelos.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+    sel.addEventListener('change', () => {
+        const m = regressaoModelos.find(x => x.nome === sel.value);
+        const desc = document.getElementById('reg-modelo-desc');
+        if (desc && m) desc.textContent = m.descricao;
+        carregarCoeficientes(sel.value);
+    });
+    // desc inicial
+    const desc = document.getElementById('reg-modelo-desc');
+    if (desc && modelos[0]) desc.textContent = modelos[0].descricao;
+}
+
+
+function carregarCoeficientes(nomeModelo) {
+    fetch(`api/regressao_dados.php?tipo=coeficientes&modelo=${encodeURIComponent(nomeModelo)}`)
+        .then(r => r.json())
+        .then(json => {
+            const coefs = json.rows || [];
+            renderRegCoefChart(coefs, nomeModelo);
+            renderRegCoefTabela(coefs);
+        });
+}
+
+
+function renderRegCoefChart(coefs, nomeModelo) {
+    // exclui intercepto do gráfico
+    const dados = coefs.filter(c => c.variavel !== 'const');
+    const ctx = document.getElementById('chart-reg-coef');
+    if (!ctx) return;
+    if (chartRegCoef) { chartRegCoef.destroy(); chartRegCoef = null; }
+
+    const NOMES = {
+        policiamento: 'Policiamento',
+        defesa_civil: 'Defesa Civil',
+        inteligencia: 'Inteligência',
+        demais:       'Demais Serviços',
+    };
+
+    chartRegCoef = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dados.map(c => NOMES[c.variavel] || c.variavel),
+            datasets: [
+                {
+                    label: 'Coeficiente',
+                    data: dados.map(c => c.coeficiente),
+                    backgroundColor: dados.map(c =>
+                        c.significativo
+                            ? (c.coeficiente < 0 ? C.ok + 'cc' : C.danger + 'cc')
+                            : C.muted + '88'
+                    ),
+                    borderColor: dados.map(c =>
+                        c.significativo
+                            ? (c.coeficiente < 0 ? C.ok : C.danger)
+                            : C.muted
+                    ),
+                    borderWidth: 2,
+                    borderRadius: 4,
+                },
+                // barras de erro (erro padrão)
+                {
+                    label: 'Erro Padrão (±)',
+                    data: dados.map(c => c.erro_padrao),
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    type: 'bar',
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const c = dados[ctx.dataIndex];
+                            return [
+                                ` Coef: ${c.coeficiente >= 0 ? '+' : ''}${c.coeficiente.toFixed(4)}`,
+                                ` Erro padrão: ±${c.erro_padrao.toFixed(4)}`,
+                                ` p-value: ${c.p_value.toFixed(4)} ${c.significativo ? '✓' : '✗'}`,
+                            ];
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: `${nomeModelo} — variação no MVI por R$ 1 bilhão adicional investido`,
+                    color: '#4a5568',
+                    font: { size: 12, weight: '700' }
+                }
+            },
+            scales: {
+                x: { grid: GRID },
+                y: {
+                    grid: GRID,
+                    title: { display: true, text: 'Δ MVI por R$ 1 bilhão (taxa/100mil hab.)', color: '#8a96a8' }
+                }
+            },
+            animation: { duration: 600 },
+        }
+    });
+}
+
+
+function renderRegR2Chart(modelos) {
+    const ctx = document.getElementById('chart-reg-r2');
+    if (!ctx) return;
+    if (chartRegR2) { chartRegR2.destroy(); chartRegR2 = null; }
+
+    chartRegR2 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: modelos.map(m => m.nome),
+            datasets: [
+                {
+                    label: 'R²',
+                    data: modelos.map(m => +(m.r2 * 100).toFixed(2)),
+                    backgroundColor: C.accent + '88',
+                    borderColor: C.accent,
+                    borderWidth: 2,
+                    borderRadius: 4,
+                },
+                {
+                    label: 'R² Ajustado',
+                    data: modelos.map(m => +(m.r2_adj * 100).toFixed(2)),
+                    backgroundColor: C.ok + '88',
+                    borderColor: C.ok,
+                    borderWidth: 2,
+                    borderRadius: 4,
+                },
+            ]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%` } }
+            },
+            scales: {
+                x: { grid: GRID },
+                y: {
+                    grid: GRID,
+                    min: 0,
+                    title: { display: true, text: 'Percentual da variância explicada (%)', color: '#8a96a8' }
+                }
+            },
+            animation: { duration: 600 },
+        }
+    });
+}
+
+
+function renderRegCoefTabela(coefs) {
+    const tbody = document.getElementById('reg-coef-body');
+    if (!tbody) return;
+
+    const NOMES = {
+        const:        'Intercepto',
+        policiamento: 'Policiamento',
+        defesa_civil: 'Defesa Civil',
+        inteligencia: 'Informações e Inteligência',
+        demais:       'Demais Serviços',
+    };
+
+    tbody.innerHTML = coefs.map(c => {
+        const cor = c.variavel === 'const' ? C.muted
+            : c.significativo ? (c.coeficiente < 0 ? C.ok : C.danger)
+            : C.muted;
+        const sigBadge = c.significativo
+            ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:900;background:${C.ok}22;color:${C.ok};border:1px solid ${C.ok}55;">✓ sim (p&lt;0,05)</span>`
+            : `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:900;background:${C.muted}22;color:${C.muted};border:1px solid ${C.muted}55;">✗ não</span>`;
+        return `<tr>
+            <td class="estado-cell">${NOMES[c.variavel] || c.variavel}</td>
+            <td style="font-weight:900;color:${cor}">${c.coeficiente >= 0 ? '+' : ''}${c.coeficiente.toFixed(4)}</td>
+            <td style="color:var(--text-muted)">±${c.erro_padrao.toFixed(4)}</td>
+            <td style="color:var(--text-muted)">${c.t_stat.toFixed(4)}</td>
+            <td style="font-weight:700;color:${c.p_value < 0.05 ? C.ok : C.muted}">${c.p_value.toFixed(4)}</td>
+            <td>${sigBadge}</td>
+            <td style="font-size:12px;color:var(--text-dim);line-height:1.5">${c.interpretacao}</td>
+        </tr>`;
+    }).join('');
+}
+
+
+
+function renderRegModelos(modelos) {
+    const tbody = document.getElementById('reg-modelos-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = modelos.map(m => {
+        const corR2 = m.r2_adj > 0.3 ? C.ok : m.r2_adj > 0.1 ? C.warning : C.danger;
+        const sigBadge = m.significativo
+            ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:900;background:${C.ok}22;color:${C.ok};border:1px solid ${C.ok}55;">✓ sim</span>`
+            : `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:900;background:${C.danger}22;color:${C.danger};border:1px solid ${C.danger}55;">✗ não</span>`;
+        return `<tr>
+            <td class="estado-cell">${m.nome}</td>
+            <td style="font-weight:900;color:${corR2}">${(m.r2 * 100).toFixed(2)}%</td>
+            <td style="font-weight:900;color:${corR2}">${(m.r2_adj * 100).toFixed(2)}%</td>
+            <td style="color:var(--text-muted)">${m.f_stat.toFixed(3)}</td>
+            <td style="font-weight:700;color:${m.f_pvalue < 0.05 ? C.ok : C.danger}">${m.f_pvalue.toFixed(4)}</td>
+            <td style="color:var(--text-muted)">${m.n_obs}</td>
+            <td>${sigBadge}</td>
+        </tr>`;
+    }).join('');
 }

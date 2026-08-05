@@ -42,7 +42,7 @@ function formatarValorAjax($valor, $isGasto) {
     return $valor;
 }
 
-$sql = "SELECT * FROM `$tabela` ORDER BY estado ASC";
+$sql = "SELECT * FROM \"$tabela\" ORDER BY estado ASC";
 $result = $conn->query($sql);
 
 header('Content-Type: application/json; charset=utf-8');

@@ -9,10 +9,14 @@ $tipo = $_GET['tipo'] ?? 'modelos';
 header('Content-Type: application/json; charset=utf-8');
 
 function queryRows($conn, $sql, $params = []) {
-    $stmt = $conn->prepare($sql);
-    if ($params) $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // substitui cada "?" pelo valor escapado via PDO::quote (PgConn não tem prepare/bind_param)
+    foreach ($params as $p) {
+        $pos = strpos($sql, '?');
+        if ($pos === false) break;
+        $sql = substr_replace($sql, $conn->pdo->quote($p), $pos, 1);
+    }
+    $result = $conn->query($sql);
+    if (!$result) return [];
     $rows = [];
     while ($row = $result->fetch_assoc()) $rows[] = $row;
     return $rows;

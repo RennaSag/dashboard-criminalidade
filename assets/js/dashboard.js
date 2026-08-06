@@ -426,6 +426,7 @@ function atualizarInfoBox(sigla, nome, val, ind, min, max) {
 let chartMviLine = null;
 let chartScatter = null;
 let chartRouboBar = null;
+let chartRouboComparativo = null;
 
 function renderCriminalidade() {
     const ano = getAno();
@@ -551,10 +552,10 @@ function renderCriminalidade() {
     const celMap = getMapaIndicador('rouboCelulares', ano);
     const estFilt = estados.filter(e => veicMap[e] != null && celMap[e] != null && !isNaN(veicMap[e]) && !isNaN(celMap[e]));
 
-    const ctxRoubo = document.getElementById('chart-roubo-bar');
+     const ctxRoubo = document.getElementById('chart-roubo-bar');
     if (ctxRoubo) {
-        if (chartMviBar) { chartMviBar.destroy(); chartMviBar = null; }
-        chartMviBar = new Chart(ctxRoubo, {
+        if (chartRouboComparativo) { chartRouboComparativo.destroy(); chartRouboComparativo = null; }
+        chartRouboComparativo = new Chart(ctxRoubo, {
             type: 'bar',
             data: {
                 labels: estFilt,

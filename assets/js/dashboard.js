@@ -547,8 +547,8 @@ function renderCriminalidade() {
     }
 
     // barra roubo veiculos + celulares
-    const veicMap = DATA.rouboVeiculos || {};
-    const celMap = DATA.rouboCelulares || {};
+    const veicMap = getMapaIndicador('rouboVeiculos', ano);
+    const celMap = getMapaIndicador('rouboCelulares', ano);
     const estFilt = estados.filter(e => veicMap[e] != null && celMap[e] != null && !isNaN(veicMap[e]) && !isNaN(celMap[e]));
 
     const ctxRoubo = document.getElementById('chart-roubo-bar');

@@ -1375,7 +1375,6 @@ function carregarCoeficientes(nomeModelo) {
 
 
 function renderRegCoefChart(coefs, nomeModelo) {
-    // exclui intercepto do gráfico
     const dados = coefs.filter(c => c.variavel !== 'const');
     const ctx = document.getElementById('chart-reg-coef');
     if (!ctx) return;
@@ -1409,7 +1408,7 @@ function renderRegCoefChart(coefs, nomeModelo) {
                     borderWidth: 2,
                     borderRadius: 4,
                 },
-                // barras de erro (erro padrão)
+                
                 {
                     label: 'Erro Padrão (±)',
                     data: dados.map(c => c.erro_padrao),

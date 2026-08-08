@@ -1,6 +1,8 @@
 <?php
 include("conectar.php");
 
+$anos = range(2016, 2025);
+
 function getDados($conn, $tabela)
 {
     $sql = "SELECT * FROM $tabela ORDER BY estado ASC";
@@ -38,7 +40,7 @@ $defesa_civil   = getDados($conn, "defesa_civil");
 $inteligencia   = getDados($conn, "informacoes_e_inteligencia");
 $demais         = getDados($conn, "demais_servicos");
 
-function somarGastos($dados, $ano = "ano2024")
+function somarGastos($dados, $ano = "ano2025")
 {
     $total = 0;
     foreach ($dados as $row) {
@@ -54,7 +56,7 @@ $total_inteligencia  = somarGastos($inteligencia);
 $total_demais        = somarGastos($demais);
 $total_geral         = $total_policiamento + $total_defesa + $total_inteligencia + $total_demais;
 
-function mediaNacional($dados, $ano = "ano2024")
+function mediaNacional($dados, $ano = "ano2025")
 {
     $vals = [];
     foreach ($dados as $row) {
@@ -68,7 +70,7 @@ $media_mvi        = mediaNacional($mvi);
 $media_trafico    = mediaNacional($trafico);
 $media_feminicidio = mediaNacional($feminicidio);
 
-function mapearPorEstado($dados, $campo_ano = "ano2024")
+function mapearPorEstado($dados, $campo_ano = "ano2025")
 {
     $mapa = [];
     foreach ($dados as $row) {
@@ -77,11 +79,27 @@ function mapearPorEstado($dados, $campo_ano = "ano2024")
     return $mapa;
 }
 
-// serie historica para grafico de linha
+// serie historica: monta {estado: valor} para CADA ano, para cada indicador
+function porAnoTodos($dados, $anos)
+{
+    $out = [];
+    foreach ($anos as $ano) {
+        $out[$ano] = mapearPorEstado($dados, "ano$ano");
+    }
+    return $out;
+}
+
 $estados_labels = json_encode(array_column($mvi, 'estado'));
-$mvi_2022 = json_encode(array_map(fn($r) => limparNumero($r['ano2022'] ?? null), $mvi));
-$mvi_2023 = json_encode(array_map(fn($r) => limparNumero($r['ano2023'] ?? null), $mvi));
-$mvi_2024 = json_encode(array_map(fn($r) => limparNumero($r['ano2024'] ?? null), $mvi));
+
+$mvi_por_ano            = porAnoTodos($mvi, $anos);
+$trafico_por_ano        = porAnoTodos($trafico, $anos);
+$feminicidio_por_ano    = porAnoTodos($feminicidio, $anos);
+$rouboVeiculos_por_ano  = porAnoTodos($roubo_veiculos, $anos);
+$rouboCelulares_por_ano = porAnoTodos($roubo_celulares, $anos);
+$policiamento_por_ano   = porAnoTodos($policiamento, $anos);
+$defesaCivil_por_ano    = porAnoTodos($defesa_civil, $anos);
+$inteligencia_por_ano   = porAnoTodos($inteligencia, $anos);
+$demaisServicos_por_ano = porAnoTodos($demais, $anos);
 
 $gastos_categorias = json_encode([
     'Policiamento'    => round($total_policiamento),
@@ -169,9 +187,9 @@ $gastos_categorias = json_encode([
             </div>
             <div class="topbar-controls">
                 <select id="ano-selector" class="control-select">
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024" selected>2024</option>
+                    <?php foreach ($anos as $ano): ?>
+                        <option value="<?= $ano ?>" <?= $ano == 2025 ? 'selected' : '' ?>><?= $ano ?></option>
+                    <?php endforeach; ?>
                 </select>
                 <select id="indicador-selector" class="control-select">
                     <option value="mvi">MVI (Mortes Violentas)</option>
@@ -270,6 +288,10 @@ $gastos_categorias = json_encode([
             <div class="chart-card tall full-width">
                 <div class="chart-label" title="Homicídios dolósos, latrocínio (roubo seguido de morte), lesão corporal seguida de morte, mortes decorrentes de intervenção policial.">
                     Mortes Violentas Intencionais - Série Histórica
+                </div>
+                <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">
+                    <label style="font-size:12px;font-weight:700;color:var(--text-muted);">Estado:</label>
+                    <select id="crim-mvi-estado-select" class="control-select" style="padding:6px 28px 6px 10px;font-size:13px;"></select>
                 </div>
                 <canvas id="chart-mvi-line" height="160"></canvas>
             </div>
@@ -649,61 +671,20 @@ $gastos_categorias = json_encode([
     <!-- data inject -->
     <script>
         const DATA = {
-            // criminalidade - MVI (mapa por estado + arrays para gráfico de linha)
-            mvi: <?= json_encode(mapearPorEstado($mvi, 'ano2024')) ?>,
-            mvi2022_map: <?= json_encode(mapearPorEstado($mvi, 'ano2022')) ?>,
-            mvi2023_map: <?= json_encode(mapearPorEstado($mvi, 'ano2023')) ?>,
-            mvi2022: <?= $mvi_2022 ?>,
-            mvi2023: <?= $mvi_2023 ?>,
-            mvi2024: <?= $mvi_2024 ?>,
-
-            // trafico
-            trafico: <?= json_encode(mapearPorEstado($trafico, 'ano2024')) ?>,
-            trafico2022: <?= json_encode(mapearPorEstado($trafico, 'ano2022')) ?>,
-            trafico2023: <?= json_encode(mapearPorEstado($trafico, 'ano2023')) ?>,
-            trafico2024: <?= json_encode(mapearPorEstado($trafico, 'ano2024')) ?>,
-
-            // feminicidio
-            feminicidio: <?= json_encode(mapearPorEstado($feminicidio, 'ano2024')) ?>,
-            feminicidio2022: <?= json_encode(mapearPorEstado($feminicidio, 'ano2022')) ?>,
-            feminicidio2023: <?= json_encode(mapearPorEstado($feminicidio, 'ano2023')) ?>,
-            feminicidio2024: <?= json_encode(mapearPorEstado($feminicidio, 'ano2024')) ?>,
-
-            // outros indicadores de criminalidade
-            rouboVeiculos: <?= json_encode(mapearPorEstado($roubo_veiculos,  'ano2024')) ?>,
-            rouboVeiculos2022: <?= json_encode(mapearPorEstado($roubo_veiculos,  'ano2022')) ?>,
-            rouboVeiculos2023: <?= json_encode(mapearPorEstado($roubo_veiculos,  'ano2023')) ?>,
-            rouboVeiculos2024: <?= json_encode(mapearPorEstado($roubo_veiculos,  'ano2024')) ?>,
-
-            rouboCelulares: <?= json_encode(mapearPorEstado($roubo_celulares, 'ano2024')) ?>,
-            rouboCelulares2022: <?= json_encode(mapearPorEstado($roubo_celulares, 'ano2022')) ?>,
-            rouboCelulares2023: <?= json_encode(mapearPorEstado($roubo_celulares, 'ano2023')) ?>,
-            rouboCelulares2024: <?= json_encode(mapearPorEstado($roubo_celulares, 'ano2024')) ?>,
-
-            // gastos 4 categorias
-            policiamento: <?= json_encode(mapearPorEstado($policiamento, 'ano2024')) ?>,
-            policiamento2022: <?= json_encode(mapearPorEstado($policiamento, 'ano2022')) ?>,
-            policiamento2023: <?= json_encode(mapearPorEstado($policiamento, 'ano2023')) ?>,
-            policiamento2024: <?= json_encode(mapearPorEstado($policiamento, 'ano2024')) ?>,
-
-            defesaCivil: <?= json_encode(mapearPorEstado($defesa_civil, 'ano2024')) ?>,
-            defesaCivil2022: <?= json_encode(mapearPorEstado($defesa_civil, 'ano2022')) ?>,
-            defesaCivil2023: <?= json_encode(mapearPorEstado($defesa_civil, 'ano2023')) ?>,
-            defesaCivil2024: <?= json_encode(mapearPorEstado($defesa_civil, 'ano2024')) ?>,
-
-            inteligencia: <?= json_encode(mapearPorEstado($inteligencia, 'ano2024')) ?>,
-            inteligencia2022: <?= json_encode(mapearPorEstado($inteligencia, 'ano2022')) ?>,
-            inteligencia2023: <?= json_encode(mapearPorEstado($inteligencia, 'ano2023')) ?>,
-            inteligencia2024: <?= json_encode(mapearPorEstado($inteligencia, 'ano2024')) ?>,
-
-            demaisServicos: <?= json_encode(mapearPorEstado($demais, 'ano2024')) ?>,
-            demaisServicos2022: <?= json_encode(mapearPorEstado($demais, 'ano2022')) ?>,
-            demaisServicos2023: <?= json_encode(mapearPorEstado($demais, 'ano2023')) ?>,
-            demaisServicos2024: <?= json_encode(mapearPorEstado($demais, 'ano2024')) ?>,
-
-            // metadados
             estados: <?= $estados_labels ?>,
+            anos: <?= json_encode($anos) ?>,
             gastosCategorias: <?= $gastos_categorias ?>,
+            porAno: {
+                mvi: <?= json_encode($mvi_por_ano) ?>,
+                trafico: <?= json_encode($trafico_por_ano) ?>,
+                feminicidio: <?= json_encode($feminicidio_por_ano) ?>,
+                rouboVeiculos: <?= json_encode($rouboVeiculos_por_ano) ?>,
+                rouboCelulares: <?= json_encode($rouboCelulares_por_ano) ?>,
+                policiamento: <?= json_encode($policiamento_por_ano) ?>,
+                defesaCivil: <?= json_encode($defesaCivil_por_ano) ?>,
+                inteligencia: <?= json_encode($inteligencia_por_ano) ?>,
+                demaisServicos: <?= json_encode($demaisServicos_por_ano) ?>,
+            },
         };
 
         const FONTES = {

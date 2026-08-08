@@ -54,7 +54,7 @@ function fmtNum(v) {
 }
 
 function getAno() {
-    return document.getElementById('ano-selector')?.value || '2024';
+    return document.getElementById('ano-selector')?.value || '2025';
 }
 
 function getIndicador() {
@@ -64,14 +64,7 @@ function getIndicador() {
 // retorna o mapa { estado: valor } para um indicador + ano
 function getMapaIndicador(ind, ano) {
     ano = ano || getAno();
-    if (ind === 'trafico') return DATA[`trafico${ano}`] || DATA.trafico || {};
-    if (ind === 'feminicidio') return DATA[`feminicidio${ano}`] || DATA.feminicidio || {};
-
-    if (ind === 'rouboVeiculos') return DATA[`rouboVeiculos${ano}`] || DATA.rouboVeiculos || {};
-    if (ind === 'rouboCelulares') return DATA[`rouboCelulares${ano}`] || DATA.rouboCelulares || {};
-
-    const mviMaps = { '2022': DATA.mvi2022_map, '2023': DATA.mvi2023_map, '2024': DATA.mvi };
-    return mviMaps[ano] || DATA.mvi || {};
+    return (DATA.porAno[ind] && DATA.porAno[ind][ano]) || {};
 }
 
 // media dos valores não-nulos de um mapa
@@ -381,7 +374,7 @@ function atualizarInfoBox(sigla, nome, val, ind, min, max) {
     const labels = { mvi: 'MVI', trafico: 'Tráfico', feminicidio: 'Feminicídio', rouboVeiculos: 'Roubo de Veículos', rouboCelulares: 'Roubo de Celulares' };
 
     function getInvest(chave) {
-        const m = DATA[`${chave}${ano}`] || DATA[chave] || {};
+        const m = (DATA.porAno[chave] && DATA.porAno[chave][ano]) || {};
         return m[nome] ?? m[sigla] ?? null;
     }
 
@@ -432,127 +425,21 @@ function renderCriminalidade() {
     const ano = getAno();
     const estados = DATA.estados || [];
 
-    // line mvi serie historica - usa mapas por estado (igual trafico/feminicidio)
-    const mviMapa2022 = DATA.mvi2022_map || {};
-    const mviMapa2023 = DATA.mvi2023_map || {};
-    const mviMapa2024 = DATA.mvi || {};
-
-    // pega todos os estados que têm dado em pelo menos um ano
-    const todosEstadosMvi = estados.filter(e =>
-        mviMapa2022[e] != null || mviMapa2023[e] != null || mviMapa2024[e] != null
-    ).sort((a, b) => (mviMapa2024[b] ?? mviMapa2023[b] ?? 0) - (mviMapa2024[a] ?? mviMapa2023[a] ?? 0));
-
-    const ctxLine = document.getElementById('chart-mvi-line');
-    if (ctxLine) {
-        if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
-        chartMviLine = new Chart(ctxLine, {
-            type: 'bar',
-            data: {
-                labels: todosEstadosMvi,
-                datasets: [
-                    {
-                        label: '2022',
-                        data: todosEstadosMvi.map(e => mviMapa2022[e] ?? null),
-                        backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
-                    },
-                    {
-                        label: '2023',
-                        data: todosEstadosMvi.map(e => mviMapa2023[e] ?? null),
-                        backgroundColor: C.warning + 'bb', borderColor: C.warning, borderWidth: 1, borderRadius: 3,
-                    },
-                    {
-                        label: '2024',
-                        data: todosEstadosMvi.map(e => mviMapa2024[e] ?? null),
-                        backgroundColor: C.danger + 'bb', borderColor: C.danger, borderWidth: 1, borderRadius: 3,
-                    },
-                ]
-            },
-            options: {
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
-                },
-                animation: { duration: 700 },
-            }
-        });
+    // seletor de estado pro grafico historico de MVI (popula so uma vez)
+    const selEstadoCrim = document.getElementById('crim-mvi-estado-select');
+    if (selEstadoCrim && !selEstadoCrim.dataset.populated) {
+        selEstadoCrim.innerHTML = estados.map(e => `<option value="${e}">${e}</option>`).join('');
+        selEstadoCrim.dataset.populated = '1';
+        selEstadoCrim.addEventListener('change', () => renderMviLinhaEstado(selEstadoCrim.value));
     }
-
-
-    // barra trafico por estado
-    const trafMapa = getMapaIndicador('trafico', ano);
-    const paresTrafico = estados
-        .map(e => ({ e, v: trafMapa[e] ?? null }))
-        .filter(p => p.v !== null && !isNaN(p.v))
-        .sort((a, b) => b.v - a.v);
-
-    const ctxTrafico = document.getElementById('chart-trafico-bar');
-    if (ctxTrafico) {
-        if (chartScatter) { chartScatter.destroy(); chartScatter = null; }
-        const minT = Math.min(...paresTrafico.map(p => p.v));
-        const maxT = Math.max(...paresTrafico.map(p => p.v));
-        chartScatter = new Chart(ctxTrafico, {
-            type: 'bar',
-            data: {
-                labels: paresTrafico.map(p => p.e),
-                datasets: [{
-                    data: paresTrafico.map(p => p.v),
-                    backgroundColor: paresTrafico.map(p => colorByValue(p.v, minT, maxT) + 'cc'),
-                    borderColor: paresTrafico.map(p => colorByValue(p.v, minT, maxT)),
-                    borderWidth: 1, borderRadius: 4,
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Número Absoluto de Casos`, color: '#8a96a8' } }
-                },
-                animation: { duration: 700 },
-            }
-        });
-    }
-
-    // barra feminicidio por estado
-    const femMapa = getMapaIndicador('feminicidio', ano);
-    const paresFem = estados
-        .map(e => ({ e, v: femMapa[e] ?? null }))
-        .filter(p => p.v !== null && !isNaN(p.v))
-        .sort((a, b) => b.v - a.v);
-
-    const ctxFem = document.getElementById('chart-feminicidio-bar');
-    if (ctxFem) {
-        if (chartRouboBar) { chartRouboBar.destroy(); chartRouboBar = null; }
-        const minF = Math.min(...paresFem.map(p => p.v));
-        const maxF = Math.max(...paresFem.map(p => p.v));
-        chartRouboBar = new Chart(ctxFem, {
-            type: 'bar',
-            data: {
-                labels: paresFem.map(p => p.e),
-                datasets: [{
-                    data: paresFem.map(p => p.v),
-                    backgroundColor: paresFem.map(p => colorByValue(p.v, minF, maxF) + 'cc'),
-                    borderColor: paresFem.map(p => colorByValue(p.v, minF, maxF)),
-                    borderWidth: 1, borderRadius: 4,
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Números Absolutos de Casos`, color: '#8a96a8' } }
-                },
-                animation: { duration: 700 },
-            }
-        });
-    }
+    if (selEstadoCrim && estados.length) renderMviLinhaEstado(selEstadoCrim.value || estados[0]);
 
     // barra roubo veiculos + celulares
     const veicMap = getMapaIndicador('rouboVeiculos', ano);
     const celMap = getMapaIndicador('rouboCelulares', ano);
     const estFilt = estados.filter(e => veicMap[e] != null && celMap[e] != null && !isNaN(veicMap[e]) && !isNaN(celMap[e]));
 
-     const ctxRoubo = document.getElementById('chart-roubo-bar');
+    const ctxRoubo = document.getElementById('chart-roubo-bar');
     if (ctxRoubo) {
         if (chartRouboComparativo) { chartRouboComparativo.destroy(); chartRouboComparativo = null; }
         chartRouboComparativo = new Chart(ctxRoubo, {
@@ -597,8 +484,45 @@ function renderCriminalidade() {
     // atualiza titulos com ano
     const lblTrafico = document.querySelector('#criminalidade .charts-2col .chart-card:nth-child(2) .chart-label');
     if (lblTrafico) lblTrafico.textContent = `Tráfico de Drogas por Estado (${ano})`;
+    
     const lblFem = document.querySelector('#criminalidade .chart-card.full-width:nth-child(1) .chart-label');
     if (lblFem) lblFem.textContent = `Feminicídio por Estado (${ano})`;
+}
+
+function renderMviLinhaEstado(estado) {
+    const anos = DATA.anos || [];
+    const mviPorAno = DATA.porAno.mvi || {};
+    const valores = anos.map(a => mviPorAno[a]?.[estado] ?? null);
+
+    const ctx = document.getElementById('chart-mvi-line');
+    if (!ctx) return;
+    if (chartMviLine) { chartMviLine.destroy(); chartMviLine = null; }
+    chartMviLine = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: anos,
+            datasets: [{
+                label: `MVI — ${estado}`,
+                data: valores,
+                borderColor: C.danger,
+                backgroundColor: C.danger + '22',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: C.danger,
+                tension: 0.3,
+                fill: true,
+                spanGaps: true,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: GRID },
+                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
+            },
+            animation: { duration: 600 },
+        }
+    });
 }
 
 
@@ -615,9 +539,9 @@ function renderInvestimentos() {
     const ano = getAno();
     const estados = DATA.estados || [];
 
-    // gastos, pega por ano se existir, senão usa 2024 como fallback
+    // gastos, pega por ano se existir
     function getMapa(chave) {
-        return DATA[`${chave}${ano}`] || DATA[chave] || {};
+        return (DATA.porAno[chave] && DATA.porAno[chave][ano]) || {};
     }
 
     const polMap = getMapa('policiamento');

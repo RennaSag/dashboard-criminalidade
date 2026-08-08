@@ -434,6 +434,74 @@ function renderCriminalidade() {
     }
     if (selEstadoCrim && estados.length) renderMviLinhaEstado(selEstadoCrim.value || estados[0]);
 
+    // barra trafico por estado
+    const trafMapa = getMapaIndicador('trafico', ano);
+    const paresTrafico = estados
+        .map(e => ({ e, v: trafMapa[e] ?? null }))
+        .filter(p => p.v !== null && !isNaN(p.v))
+        .sort((a, b) => b.v - a.v);
+
+    const ctxTrafico = document.getElementById('chart-trafico-bar');
+    if (ctxTrafico) {
+        if (chartScatter) { chartScatter.destroy(); chartScatter = null; }
+        const minT = Math.min(...paresTrafico.map(p => p.v));
+        const maxT = Math.max(...paresTrafico.map(p => p.v));
+        chartScatter = new Chart(ctxTrafico, {
+            type: 'bar',
+            data: {
+                labels: paresTrafico.map(p => p.e),
+                datasets: [{
+                    data: paresTrafico.map(p => p.v),
+                    backgroundColor: paresTrafico.map(p => colorByValue(p.v, minT, maxT) + 'cc'),
+                    borderColor: paresTrafico.map(p => colorByValue(p.v, minT, maxT)),
+                    borderWidth: 1, borderRadius: 4,
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Número Absoluto de Casos`, color: '#8a96a8' } }
+                },
+                animation: { duration: 700 },
+            }
+        });
+    }
+
+    // barra feminicidio por estado
+    const femMapa = getMapaIndicador('feminicidio', ano);
+    const paresFem = estados
+        .map(e => ({ e, v: femMapa[e] ?? null }))
+        .filter(p => p.v !== null && !isNaN(p.v))
+        .sort((a, b) => b.v - a.v);
+
+    const ctxFem = document.getElementById('chart-feminicidio-bar');
+    if (ctxFem) {
+        if (chartRouboBar) { chartRouboBar.destroy(); chartRouboBar = null; }
+        const minF = Math.min(...paresFem.map(p => p.v));
+        const maxF = Math.max(...paresFem.map(p => p.v));
+        chartRouboBar = new Chart(ctxFem, {
+            type: 'bar',
+            data: {
+                labels: paresFem.map(p => p.e),
+                datasets: [{
+                    data: paresFem.map(p => p.v),
+                    backgroundColor: paresFem.map(p => colorByValue(p.v, minF, maxF) + 'cc'),
+                    borderColor: paresFem.map(p => colorByValue(p.v, minF, maxF)),
+                    borderWidth: 1, borderRadius: 4,
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Números Absolutos de Casos`, color: '#8a96a8' } }
+                },
+                animation: { duration: 700 },
+            }
+        });
+    }
+
     // barra roubo veiculos + celulares
     const veicMap = getMapaIndicador('rouboVeiculos', ano);
     const celMap = getMapaIndicador('rouboCelulares', ano);

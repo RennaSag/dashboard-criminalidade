@@ -191,33 +191,40 @@ function renderVisaoGeral() {
     const labelEl = document.querySelector('.mini-charts-row .chart-label');
     if (labelEl) labelEl.textContent = `${indLabels[ind] || ind} por Estado - ${ano}`;
 
-    // donut gastos estatico
-    if (!chartGastosDn) {
-        const gastos = DATA.gastosCategorias || {};
-        const ctxDonut = document.getElementById('chart-gastos-donut');
-        if (ctxDonut && Object.keys(gastos).length) {
-            chartGastosDn = new Chart(ctxDonut, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(gastos),
-                    datasets: [{
-                        data: Object.values(gastos),
-                        backgroundColor: [C.accent + 'cc', C.ok + 'cc', C.warning + 'cc', C.teal + 'cc'],
-                        borderColor: ['#fff', '#fff', '#fff', '#fff'],
-                        borderWidth: 3,
-                        hoverOffset: 8,
-                    }]
+    // donut gastos por ano
+    function somaMapa(mapa) {
+        return Object.values(mapa).reduce((acc, v) => acc + (v !== null && !isNaN(v) ? v : 0), 0);
+    }
+    const gastosAno = {
+        'Policiamento':    somaMapa(getMapaIndicador('policiamento', ano)),
+        'Defesa Civil':    somaMapa(getMapaIndicador('defesaCivil', ano)),
+        'Inteligência':    somaMapa(getMapaIndicador('inteligencia', ano)),
+        'Demais Serviços': somaMapa(getMapaIndicador('demaisServicos', ano)),
+    };
+    const ctxDonut = document.getElementById('chart-gastos-donut');
+    if (ctxDonut) {
+        if (chartGastosDn) { chartGastosDn.destroy(); chartGastosDn = null; }
+        chartGastosDn = new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(gastosAno),
+                datasets: [{
+                    data: Object.values(gastosAno),
+                    backgroundColor: [C.accent + 'cc', C.ok + 'cc', C.warning + 'cc', C.teal + 'cc'],
+                    borderColor: ['#fff', '#fff', '#fff', '#fff'],
+                    borderWidth: 3,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#4a5568', font: { size: 11 }, padding: 12 } },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: R$ ${(ctx.raw / 1e9).toFixed(1).replace('.', ',')}B` } }
                 },
-                options: {
-                    cutout: '65%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#4a5568', font: { size: 11 }, padding: 12 } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: R$ ${(ctx.raw / 1e9).toFixed(1).replace('.', ',')}B` } }
-                    },
-                    animation: { animateRotate: true, duration: 1000 },
-                }
-            });
-        }
+                animation: { animateRotate: true, duration: 800 },
+            }
+        });
     }
 }
 

@@ -568,6 +568,7 @@ function renderMviLinhaEstado(estado) {
     const anos = DATA.anos || [];
     const mviPorAno = DATA.porAno.mvi || {};
     const valores = anos.map(a => mviPorAno[a]?.[estado] ?? null);
+    const anoSelecionado = getAno();
 
     const ctx = document.getElementById('chart-mvi-line');
     if (!ctx) return;
@@ -582,8 +583,10 @@ function renderMviLinhaEstado(estado) {
                 borderColor: C.danger,
                 backgroundColor: C.danger + '22',
                 borderWidth: 2.5,
-                pointRadius: 4,
-                pointBackgroundColor: C.danger,
+                pointRadius: anos.map(a => String(a) === String(anoSelecionado) ? 8 : 4),
+                pointBackgroundColor: anos.map(a => String(a) === String(anoSelecionado) ? C.accent2 : C.danger),
+                pointBorderColor: anos.map(a => String(a) === String(anoSelecionado) ? '#fff' : C.danger),
+                pointBorderWidth: anos.map(a => String(a) === String(anoSelecionado) ? 2 : 0),
                 tension: 0.3,
                 fill: true,
                 spanGaps: true,

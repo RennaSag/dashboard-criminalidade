@@ -170,7 +170,7 @@ $gastos_categorias = json_encode([
         <div class="sidebar-footer">
             <div class="update-badge">
                 <span class="pulse-dot"></span>
-                Dados: 2022–2024
+                Dados: 2016 – 2025
             </div>
             <div class="fonte-text">Fórum Brasileiro de Seg. Pública - STN</div>
         </div>

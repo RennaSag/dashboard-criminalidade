@@ -179,7 +179,7 @@ function renderVisaoGeral() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Números Absolutos', color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Taxa por 100 mil hab.', color: '#8a96a8' } }
                 },
                 animation: { duration: 600 },
             }
@@ -461,7 +461,7 @@ function renderCriminalidade() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Número Absoluto de Casos`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100 mil hab.`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -495,7 +495,7 @@ function renderCriminalidade() {
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 50, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Números Absolutos de Casos`, color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: `Taxa por 100 mil mulheres`, color: '#8a96a8' } }
                 },
                 animation: { duration: 700 },
             }
@@ -516,12 +516,12 @@ function renderCriminalidade() {
                 labels: estFilt,
                 datasets: [
                     {
-                        label: 'Roubo/Furto Veículos (nº absoluto)',
+                        label: 'Roubo/Furto Veículos (taxa/100mil)',
                         data: estFilt.map(e => veicMap[e]),
                         backgroundColor: C.accent + 'bb', borderColor: C.accent, borderWidth: 1, borderRadius: 3,
                     },
                     {
-                        label: 'Roubo/Furto Celulares (nº absoluto)',
+                        label: 'Roubo/Furto Celulares (taxa/100mil)',
                         data: estFilt.map(e => celMap[e]),
                         backgroundColor: C.teal + 'bb', borderColor: C.teal, borderWidth: 1, borderRadius: 3,
                     },
@@ -542,7 +542,7 @@ function renderCriminalidade() {
                 },
                 scales: {
                     x: { grid: GRID, ticks: { maxRotation: 45, font: { size: 10 } } },
-                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
+                    y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Taxa por 100 mil', color: '#8a96a8' } }
                 },
                 animation: { duration: 600 },
             }
@@ -586,15 +586,12 @@ function renderMviLinhaEstado(estado) {
             plugins: { legend: { display: false } },
             scales: {
                 x: { grid: GRID },
-                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Número Absoluto de Casos', color: '#8a96a8' } }
+                y: { grid: GRID, beginAtZero: true, title: { display: true, text: 'Taxa por 100 mil hab.', color: '#8a96a8' } }
             },
             animation: { duration: 600 },
         }
     });
 }
-
-
-
 
 // secao 4 investimentos
 let chartPolBar = null;

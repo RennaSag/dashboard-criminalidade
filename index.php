@@ -30,11 +30,11 @@ function limparNumero($valor)
 }
 
 // carrega todos os dados
-$mvi            = getDados($conn, "mvi_numeros_absolutos");
-$trafico        = getDados($conn, "trafico_de_drogas_numeros_absolutos");
-$feminicidio    = getDados($conn, "feminicidio_numeros_absolutos");
-$roubo_veiculos = getDados($conn, "roubo_furto_veiculos_numeros_absolutos");
-$roubo_celulares  = getDados($conn, "roubo_furto_celulares_numeros_absolutos");
+$mvi            = getDados($conn, "mvi_taxa");
+$trafico        = getDados($conn, "trafico_de_drogas_taxa");
+$feminicidio    = getDados($conn, "feminicidio_taxa");
+$roubo_veiculos = getDados($conn, "roubo_furto_veiculos_taxa");
+$roubo_celulares  = getDados($conn, "roubo_furto_celulares_taxa");
 $policiamento   = getDados($conn, "policiamento");
 $defesa_civil   = getDados($conn, "defesa_civil");
 $inteligencia   = getDados($conn, "informacoes_e_inteligencia");

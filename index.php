@@ -570,14 +570,6 @@ $gastos_categorias = json_encode([
             </div>
             <div class="table-controls">
 
-                <select name="tabela" id="tabela-select" class="control-select">
-                    <optgroup label="Criminalidade — Números Absolutos">
-                        <option value="mvi_numeros_absolutos">MVI - Mortes Violentas Intencionais</option>
-                        <option value="trafico_de_drogas_numeros_absolutos">Tráfico de Drogas</option>
-                        <option value="feminicidio_numeros_absolutos">Feminicídio</option>
-                        <option value="roubo_furto_veiculos_numeros_absolutos">Roubo/Furto Veículos</option>
-                        <option value="roubo_furto_celulares_numeros_absolutos">Roubo/Furto Celulares</option>
-                    </optgroup>
                     <optgroup label="Criminalidade Taxas ">
                         <option value="mvi_taxa">MVI - Mortes Violentas Intencionais (Taxa por 100 mil habitantes)</option>
                         <option value="trafico_de_drogas_taxa">Tráfico de Drogas (Taxa por 100 mil habitantes)</option>

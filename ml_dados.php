@@ -64,8 +64,8 @@ switch ($tipo) {
     
     case 'eficiencia':
         $rows = queryRows($conn,
-            'SELECT ranking, estado, mvi_2022, mvi_2024, variacao_mvi,
-                    variacao_pct, invest_medio_bi, score_eficiencia
+            'SELECT ranking, estado, mvi_inicial, mvi_final, ano_inicial, ano_final,
+                    variacao_mvi, variacao_pct, invest_medio_bi, score_eficiencia
              FROM eficiencia_estados ORDER BY ranking ASC'
         );
         $out = [];
@@ -73,8 +73,10 @@ switch ($tipo) {
             $out[] = [
                 'ranking'          => (int)   $r['ranking'],
                 'estado'           => $r['estado'],
-                'mvi_2022'         => (float) $r['mvi_2022'],
-                'mvi_2024'         => (float) $r['mvi_2024'],
+                'mvi_inicial'      => (float) $r['mvi_inicial'],
+                'mvi_final'        => (float) $r['mvi_final'],
+                'ano_inicial'      => (int)   $r['ano_inicial'],
+                'ano_final'        => (int)   $r['ano_final'],
                 'variacao_mvi'     => (float) $r['variacao_mvi'],
                 'variacao_pct'     => (float) $r['variacao_pct'],
                 'invest_medio_bi'  => (float) $r['invest_medio_bi'],

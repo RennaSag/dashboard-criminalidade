@@ -902,8 +902,10 @@ function renderPrevisao(rows) {
             const badge = `<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:900;background:${cor}22;color:${cor};border:1px solid ${cor}55;">${r.tendencia === 'queda' ? '↘ Queda' : '↗ Alta'}</span>`;
             return `<tr>
                 <td class="estado-cell">${r.estado}</td>
-                <td>${fmtNum(r.mvi_inicial)}</td>
-                <td>${fmtNum(r.mvi_final)}</td>
+
+                <td>${fmtNum(r.mvi_2022)}</td>
+                <td>${fmtNum(r.mvi_2023)}</td>
+                <td>${fmtNum(r.mvi_2024)}</td>
                 
                 <td style="font-weight:900;color:${C.warning}">${fmtNum(r.prev_2025)}</td>
                 <td style="font-weight:900;color:${C.accent2}">${fmtNum(r.prev_2026)}</td>

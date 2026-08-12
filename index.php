@@ -464,8 +464,8 @@ $gastos_categorias = json_encode([
                     <tr>
                         <th>#</th>
                         <th>Estado</th>
-                        <th>MVI 2022</th>
-                        <th>MVI 2024</th>
+                        <th>MVI 2016</th>
+                        <th>MVI 2025</th>
                         <th>Variação MVI</th>
                         <th>Variação %</th>
                         <th>Invest. Médio (R$ B)</th>
@@ -484,17 +484,17 @@ $gastos_categorias = json_encode([
 </section>
 
 
-        <!-- SEÇÃO PRINCIPAL -->
+        
         <section id="regressao" class="section">
             <div class="section-header">
                 <div class="section-tag">MACHINE LEARNING · REGRESSÃO MÚLTIPLA OLS</div>
                 <h2>Impacto do Investimento na Taxa de MVI</h2>
             </div>
 
-            <!-- KPI dos modelos (preenchido via JS) -->
+            
             <div class="kpi-grid" id="reg-kpi-grid" style="grid-template-columns: repeat(4,1fr);"></div>
 
-            <!-- Seletor de modelo -->
+            
             <div style="display:flex;align-items:center;gap:12px;margin:20px 0 16px;">
                 <label style="font-size:12px;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Modelo:</label>
                 <select id="reg-modelo-select" class="control-select"></select>
@@ -502,19 +502,19 @@ $gastos_categorias = json_encode([
             </div>
 
             <div class="charts-2col">
-                <!-- gráfico de coeficientes -->
+               
                 <div class="chart-card">
                     <div class="chart-label">Coeficientes — Efeito de cada R$ 1 bilhão investido na Taxa de MVI</div>
                     <canvas id="chart-reg-coef" height="240"></canvas>
                 </div>
-                <!-- comparativo R² dos modelos -->
+               
                 <div class="chart-card">
                     <div class="chart-label">Comparativo de Ajuste entre Modelos (R² Ajustado)</div>
                     <canvas id="chart-reg-r2" height="240"></canvas>
                 </div>
             </div>
 
-            <!-- tabela de coeficientes -->
+         
             <div class="table-wrapper" style="margin-top:16px;">
                 <table class="data-table">
                     <thead>
@@ -534,7 +534,7 @@ $gastos_categorias = json_encode([
                 </table>
             </div>
 
-            <!-- tabela de modelos -->
+            
             <div class="table-wrapper" style="margin-top:12px;">
                 <table class="data-table">
                     <thead>
@@ -560,7 +560,7 @@ $gastos_categorias = json_encode([
         </section>
 
 
-        <!-- secao tabela -->
+        
         <section id="tabela" class="section">
             <div class="section-header">
                 <div class="section-tag">DADOS DETALHADOS</div>
@@ -618,7 +618,7 @@ $gastos_categorias = json_encode([
         </section>
 
 
-        <!-- secao clusters taxa -->
+        
         <section id="clusters-taxa" class="section">
             <div class="section-header">
                 <div class="section-tag">MACHINE LEARNING TAXAS</div>
@@ -659,7 +659,7 @@ $gastos_categorias = json_encode([
 
     </main>
 
-    <!-- data inject -->
+    
     <script>
         const DATA = {
             estados: <?= $estados_labels ?>,
@@ -700,8 +700,7 @@ $gastos_categorias = json_encode([
 
             demais_servicos: "<strong>Demais Serviços de Segurança</strong> (R$) - Fonte: Ministério da Fazenda/STN; Fórum Brasileiro de Segurança Pública.",
 
-
-            
+   
         };
     </script>
     <script src="assets/js/dashboard.js"></script>

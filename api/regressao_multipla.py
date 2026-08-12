@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import statsmodels.api as sm
 import warnings
@@ -20,15 +18,28 @@ def limpar_numero(valor):
         return None
 
 
+def colunas_ano_existentes(cur, tabela):
+    """Retorna os anos (int) que realmente existem como coluna ano<ano> na tabela."""
+    cur.execute('''
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = %s AND column_name ~ '^ano[0-9]{4}$'
+    ''', (tabela,))
+    return sorted(int(row[0][3:]) for row in cur.fetchall())
+
+
 def carregar_tabela(cur, tabela):
-    colunas = ', '.join(f'ano{a}' for a in ANOS_DISPONIVEIS)
+    """Retorna dict {estado: {ano: valor}} apenas para os anos que existem na tabela."""
+    anos_tabela = colunas_ano_existentes(cur, tabela)
+    if not anos_tabela:
+        return {}
+    colunas = ', '.join(f'ano{a}' for a in anos_tabela)
     cur.execute(f'SELECT estado, {colunas} FROM {tabela}')
     rows = cur.fetchall()
     result = {}
     for row in rows:
         estado = row[0]
         valores = row[1:]
-        result[estado] = {ano: limpar_numero(v) for ano, v in zip(ANOS_DISPONIVEIS, valores)}
+        result[estado] = {ano: limpar_numero(v) for ano, v in zip(anos_tabela, valores)}
     return result
 
 

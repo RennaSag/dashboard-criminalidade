@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
@@ -29,8 +27,20 @@ def limpar_numero(valor):
         return None
 
 
+def colunas_ano_existentes(cursor, tabela):
+    """Retorna os anos (int) que realmente existem como coluna ano<ano> na tabela."""
+    cursor.execute('''
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = %s AND column_name ~ '^ano[0-9]{4}$'
+    ''', (tabela,))
+    return sorted(int(row[0][3:]) for row in cursor.fetchall())
+
+
 def media_estado(cursor, tabela):
-    colunas = ', '.join(f'ano{a}' for a in ANOS_DISPONIVEIS)
+    anos_tabela = colunas_ano_existentes(cursor, tabela)
+    if not anos_tabela:
+        return {}
+    colunas = ', '.join(f'ano{a}' for a in anos_tabela)
     cursor.execute(f'SELECT estado, {colunas} FROM {tabela}')
     rows = cursor.fetchall()
     result = {}

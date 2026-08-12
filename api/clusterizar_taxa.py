@@ -1,3 +1,5 @@
+
+
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
@@ -6,6 +8,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from db import get_connection
+
+ANOS_DISPONIVEIS = list(range(2016, 2026))  # 2016 a 2025
 
 PERFIS = {
     0: 'Baixa Criminalidade / Baixo Investimento',
@@ -26,11 +30,14 @@ def limpar_numero(valor):
 
 
 def media_estado(cursor, tabela):
-    cursor.execute(f'SELECT estado, ano2022, ano2023, ano2024 FROM {tabela}')
+    colunas = ', '.join(f'ano{a}' for a in ANOS_DISPONIVEIS)
+    cursor.execute(f'SELECT estado, {colunas} FROM {tabela}')
     rows = cursor.fetchall()
     result = {}
-    for estado, a2022, a2023, a2024 in rows:
-        vals = [limpar_numero(v) for v in [a2022, a2023, a2024]]
+    for row in rows:
+        estado = row[0]
+        valores = row[1:]
+        vals = [limpar_numero(v) for v in valores]
         vals = [v for v in vals if v is not None]
         result[estado] = float(sum(vals) / len(vals)) if vals else None
     return result

@@ -1,3 +1,5 @@
+
+
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.stats import pearsonr
@@ -5,6 +7,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from db import get_connection
+
+ANOS_DISPONIVEIS = list(range(2016, 2026))   # 2016 a 2025
+ANOS_TREINO       = list(range(2016, 2025))  # 2016 a 2024 (usados para treinar a regressão)
+ANO_INICIAL_EFIC  = 2016
+ANO_FINAL_EFIC    = 2025
 
 
 def limpar_numero(valor):
@@ -18,16 +25,15 @@ def limpar_numero(valor):
 
 
 def carregar_tabela(cur, tabela):
-    """Retorna dict {estado: {2022: v, 2023: v, 2024: v}}"""
-    cur.execute(f'SELECT estado, ano2022, ano2023, ano2024 FROM {tabela}')
+    """Retorna dict {estado: {2016: v, 2017: v, ..., 2025: v}}"""
+    colunas = ', '.join(f'ano{a}' for a in ANOS_DISPONIVEIS)
+    cur.execute(f'SELECT estado, {colunas} FROM {tabela}')
     rows = cur.fetchall()
     result = {}
-    for estado, a2022, a2023, a2024 in rows:
-        result[estado] = {
-            2022: limpar_numero(a2022),
-            2023: limpar_numero(a2023),
-            2024: limpar_numero(a2024),
-        }
+    for row in rows:
+        estado = row[0]
+        valores = row[1:]
+        result[estado] = {ano: limpar_numero(v) for ano, v in zip(ANOS_DISPONIVEIS, valores)}
     return result
 
 
@@ -38,9 +44,7 @@ def regressao_linear(cur, conn):
     resultados = []
 
     for estado, anos in dados.items():
-        vals = [anos[a] for a in [2022, 2023, 2024]]
-
-        validos = [(a, v) for a, v in zip([2022, 2023, 2024], vals) if v is not None]
+        validos = [(a, anos[a]) for a in ANOS_TREINO if anos.get(a) is not None]
         if len(validos) < 2:
             print(f'  {estado}: dados insuficientes, pulando.')
             continue
@@ -51,14 +55,10 @@ def regressao_linear(cur, conn):
         model = LinearRegression()
         model.fit(xs, ys)
 
-        pred_2025 = float(model.predict([[2025]])[0])
-        pred_2026 = float(model.predict([[2026]])[0])
+        pred_2025 = max(0.0, float(model.predict([[2025]])[0]))
+        pred_2026 = max(0.0, float(model.predict([[2026]])[0]))
 
-        r2 = float(model.score(xs, ys)) if len(validos) == 3 else None
-
-        pred_2025 = max(0.0, pred_2025)
-        pred_2026 = max(0.0, pred_2026)
-
+        r2 = float(model.score(xs, ys)) if len(validos) >= 3 else None
         tendencia = 'queda' if model.coef_[0] < 0 else 'alta'
 
         resultados.append({
@@ -69,11 +69,11 @@ def regressao_linear(cur, conn):
             'prev_2025': round(pred_2025, 2),
             'prev_2026': round(pred_2026, 2),
             'tendencia': tendencia,
-            'mvi_2022': vals[0],
-            'mvi_2023': vals[1],
-            'mvi_2024': vals[2],
+            'mvi_2022': anos.get(2022),
+            'mvi_2023': anos.get(2023),
+            'mvi_2024': anos.get(2024),
         })
-        print(f'  {estado:30s} coef={model.coef_[0]:+.3f}  2025={pred_2025:.1f}  2026={pred_2026:.1f}  [{tendencia}]')
+        print(f'  {estado:30s} n={len(validos)}  coef={model.coef_[0]:+.3f}  2025={pred_2025:.1f}  2026={pred_2026:.1f}  [{tendencia}]')
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS previsao_mvi (
@@ -116,19 +116,17 @@ def correlacao_pearson(cur, conn):
     intelig  = carregar_tabela(cur, 'informacoes_e_inteligencia')
     demais   = carregar_tabela(cur, 'demais_servicos')
 
-    anos = [2022, 2023, 2024]
     resultados = []
-
     estados = sorted(mvi.keys())
     for estado in estados:
-        mvi_vals = [mvi[estado].get(a) for a in anos]
-        pol_vals = [policia.get(estado, {}).get(a) for a in anos]
-        def_vals = [defesa.get(estado, {}).get(a) for a in anos]
-        int_vals = [intelig.get(estado, {}).get(a) for a in anos]
-        dem_vals = [demais.get(estado, {}).get(a) for a in anos]
+        mvi_vals = [mvi[estado].get(a) for a in ANOS_DISPONIVEIS]
+        pol_vals = [policia.get(estado, {}).get(a) for a in ANOS_DISPONIVEIS]
+        def_vals = [defesa.get(estado, {}).get(a) for a in ANOS_DISPONIVEIS]
+        int_vals = [intelig.get(estado, {}).get(a) for a in ANOS_DISPONIVEIS]
+        dem_vals = [demais.get(estado, {}).get(a) for a in ANOS_DISPONIVEIS]
 
         invest_vals = []
-        for i in range(3):
+        for i in range(len(ANOS_DISPONIVEIS)):
             vs = [pol_vals[i], def_vals[i], int_vals[i], dem_vals[i]]
             vs = [v for v in vs if v is not None]
             invest_vals.append(sum(vs) if vs else None)
@@ -170,7 +168,7 @@ def correlacao_pearson(cur, conn):
             'mvi_medio': round(mvi_medio, 4),
         })
         sig = f'p={p:.3f}' if p is not None else 'p=N/A'
-        print(f'  {estado:30s} r={r:+.3f}  {sig}  {direcao} {forca}')
+        print(f'  {estado:30s} n={len(pares)}  r={r:+.3f}  {sig}  {direcao} {forca}')
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS correlacao_estados (
@@ -201,7 +199,7 @@ def correlacao_pearson(cur, conn):
 
 
 def ranking_eficiencia(cur, conn):
-    print('\n[3/3] Ranking de Eficiência de Investimento ...')
+    print(f'\n[3/3] Ranking de Eficiência de Investimento ({ANO_INICIAL_EFIC} -> {ANO_FINAL_EFIC}) ...')
 
     mvi     = carregar_tabela(cur, 'mvi_taxa')
     policia = carregar_tabela(cur, 'policiamento')
@@ -213,29 +211,33 @@ def ranking_eficiencia(cur, conn):
     resultados = []
 
     for estado in estados:
-        mvi22 = mvi[estado].get(2022)
-        mvi24 = mvi[estado].get(2024)
+        mvi_ini = mvi[estado].get(ANO_INICIAL_EFIC)
+        mvi_fim = mvi[estado].get(ANO_FINAL_EFIC)
 
-        pol = {a: policia.get(estado, {}).get(a) for a in [2022, 2023, 2024]}
-        dfc = {a: defesa.get(estado, {}).get(a)  for a in [2022, 2023, 2024]}
-        itl = {a: intelig.get(estado, {}).get(a) for a in [2022, 2023, 2024]}
-        dms = {a: demais.get(estado, {}).get(a)  for a in [2022, 2023, 2024]}
+        if mvi_ini is None or mvi_fim is None:
+            print(f'  {estado}: sem MVI em {ANO_INICIAL_EFIC} ou {ANO_FINAL_EFIC}, pulando.')
+            continue
 
         invest_por_ano = []
-        for a in [2022, 2023, 2024]:
-            vs = [pol[a], dfc[a], itl[a], dms[a]]
+        for a in ANOS_DISPONIVEIS:
+            vs = [
+                policia.get(estado, {}).get(a),
+                defesa.get(estado, {}).get(a),
+                intelig.get(estado, {}).get(a),
+                demais.get(estado, {}).get(a),
+            ]
             vs = [v for v in vs if v is not None]
             if vs:
                 invest_por_ano.append(sum(vs))
 
-        if not invest_por_ano or mvi22 is None or mvi24 is None:
-            print(f'  {estado}: dados insuficientes para eficiência, pulando.')
+        if not invest_por_ano:
+            print(f'  {estado}: sem dados de investimento, pulando.')
             continue
 
         invest_medio = float(np.mean(invest_por_ano))
 
-        variacao_mvi = mvi24 - mvi22
-        variacao_pct = (variacao_mvi / mvi22 * 100) if mvi22 != 0 else 0
+        variacao_mvi = mvi_fim - mvi_ini
+        variacao_pct = (variacao_mvi / mvi_ini * 100) if mvi_ini != 0 else 0
 
         if invest_medio > 0:
             score_eficiencia = (-variacao_mvi) / (invest_medio / 1e9)
@@ -244,8 +246,10 @@ def ranking_eficiencia(cur, conn):
 
         resultados.append({
             'estado': estado,
-            'mvi_2022': round(mvi22, 2),
-            'mvi_2024': round(mvi24, 2),
+            'mvi_inicial': round(mvi_ini, 2),
+            'mvi_final': round(mvi_fim, 2),
+            'ano_inicial': ANO_INICIAL_EFIC,
+            'ano_final': ANO_FINAL_EFIC,
             'variacao_mvi': round(variacao_mvi, 2),
             'variacao_pct': round(variacao_pct, 2),
             'invest_medio_bi': round(invest_medio / 1e9, 4),
@@ -262,8 +266,10 @@ def ranking_eficiencia(cur, conn):
             id               SERIAL PRIMARY KEY,
             ranking          INT,
             estado           VARCHAR(60),
-            mvi_2022         DOUBLE PRECISION,
-            mvi_2024         DOUBLE PRECISION,
+            mvi_inicial      DOUBLE PRECISION,
+            mvi_final        DOUBLE PRECISION,
+            ano_inicial      INT,
+            ano_final        INT,
             variacao_mvi     DOUBLE PRECISION,
             variacao_pct     DOUBLE PRECISION,
             invest_medio_bi  DOUBLE PRECISION,
@@ -275,10 +281,11 @@ def ranking_eficiencia(cur, conn):
     for i, r in enumerate(resultados, 1):
         cur.execute('''
             INSERT INTO eficiencia_estados
-              (ranking, estado, mvi_2022, mvi_2024, variacao_mvi, variacao_pct, invest_medio_bi, score_eficiencia)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+              (ranking, estado, mvi_inicial, mvi_final, ano_inicial, ano_final, variacao_mvi, variacao_pct, invest_medio_bi, score_eficiencia)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         ''', (
-            i, r['estado'], r['mvi_2022'], r['mvi_2024'],
+            i, r['estado'], r['mvi_inicial'], r['mvi_final'],
+            r['ano_inicial'], r['ano_final'],
             r['variacao_mvi'], r['variacao_pct'],
             r['invest_medio_bi'], r['score_eficiencia'],
         ))

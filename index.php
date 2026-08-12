@@ -392,10 +392,8 @@ $gastos_categorias = json_encode([
                 <thead>
                     <tr>
                         <th>Estado</th>
-                        <th>MVI 2022</th>
-                        <th>MVI 2023</th>
-                        <th>MVI 2024</th>
-                        <th>Previsão 2025</th>
+                        <th>MVI 2016</th>
+                        <th>MVI 2025</th>
                         <th>Previsão 2026</th>
                         <th>Tendência</th>
                         <th>R²</th>

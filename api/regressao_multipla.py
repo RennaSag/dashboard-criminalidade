@@ -1,10 +1,13 @@
 
+
 import pandas as pd
 import statsmodels.api as sm
 import warnings
 warnings.filterwarnings('ignore')
 
 from db import get_connection
+
+ANOS_DISPONIVEIS = list(range(2016, 2026))  # 2016 a 2025
 
 
 def limpar_numero(valor):
@@ -18,15 +21,14 @@ def limpar_numero(valor):
 
 
 def carregar_tabela(cur, tabela):
-    cur.execute(f'SELECT estado, ano2022, ano2023, ano2024 FROM {tabela}')
+    colunas = ', '.join(f'ano{a}' for a in ANOS_DISPONIVEIS)
+    cur.execute(f'SELECT estado, {colunas} FROM {tabela}')
     rows = cur.fetchall()
     result = {}
-    for estado, a2022, a2023, a2024 in rows:
-        result[estado] = {
-            2022: limpar_numero(a2022),
-            2023: limpar_numero(a2023),
-            2024: limpar_numero(a2024),
-        }
+    for row in rows:
+        estado = row[0]
+        valores = row[1:]
+        result[estado] = {ano: limpar_numero(v) for ano, v in zip(ANOS_DISPONIVEIS, valores)}
     return result
 
 
@@ -45,7 +47,7 @@ def interpretar_coef(nome, coef, pvalue):
 
 
 def montar_painel(cur):
-    """Retorna DataFrame com 81 linhas (27 estados × 3 anos)."""
+    """Retorna DataFrame com uma linha por estado × ano (2016-2025) com dados."""
 
     mvi     = carregar_tabela(cur, 'mvi_taxa')
     policia = carregar_tabela(cur, 'policiamento')
@@ -55,7 +57,7 @@ def montar_painel(cur):
 
     registros = []
     for estado in sorted(mvi.keys()):
-        for ano in [2022, 2023, 2024]:
+        for ano in ANOS_DISPONIVEIS:
             mvi_val = mvi[estado].get(ano)
             pol_val = policia.get(estado, {}).get(ano)
             def_val = defesa.get(estado, {}).get(ano)
@@ -76,7 +78,7 @@ def montar_painel(cur):
             })
 
     df = pd.DataFrame(registros)
-    print(f'  Painel montado: {len(df)} observações ({df["estado"].nunique()} estados × anos)')
+    print(f'  Painel montado: {len(df)} observações ({df["estado"].nunique()} estados × até {len(ANOS_DISPONIVEIS)} anos)')
     return df
 
 

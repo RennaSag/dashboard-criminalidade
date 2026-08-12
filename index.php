@@ -570,6 +570,7 @@ $gastos_categorias = json_encode([
             </div>
             <div class="table-controls">
 
+                <select name="tabela" id="tabela-select" class="control-select">   
                     <optgroup label="Criminalidade Taxas ">
                         <option value="mvi_taxa">MVI - Mortes Violentas Intencionais (Taxa por 100 mil habitantes)</option>
                         <option value="trafico_de_drogas_taxa">Tráfico de Drogas (Taxa por 100 mil habitantes)</option>

@@ -164,7 +164,9 @@ $gastos_categorias = json_encode([
                 <span class="nav-icon">▦</span> Dados Detalhados
             </a>
 
-            
+            <a href="#sobre" class="nav-item" data-section="sobre">
+                <span class="nav-icon">ⓘ</span> Sobre
+            </a>
 
         </nav>
         <div class="sidebar-footer">
@@ -654,6 +656,135 @@ $gastos_categorias = json_encode([
             </div>
             <div class="fonte">
                 <strong>Clusterização K-Means (k=4) · Taxas por 100 mil habitantes</strong> — Agrupamento dos 27 estados com base na média 2022–2024 de 5 indicadores de taxa (MVI, Tráfico, Feminicídio, Roubo de Veículos, Roubo de Celulares) + 4 de investimento. Features normalizadas via Z-score. Fonte: Fórum Brasileiro de Segurança Pública · STN.
+            </div>
+        </section>
+
+
+        <!-- secao sobre -->
+        <section id="sobre" class="section">
+            <div class="section-header">
+                <div class="section-tag">SOBRE O PROJETO</div>
+                <h2>Trabalho de Conclusão de Curso</h2>
+            </div>
+
+            <p class="sobre-lead">
+                Este dashboard foi desenvolvido como <strong>Trabalho de Conclusão de Curso (TCC)</strong> por
+                <strong>Rennã Sag</strong>, no <strong>Instituto Federal Goiano</strong>. A proposta nasceu da
+                necessidade de tornar acessível e visual uma questão complexa da administração pública brasileira:
+                como o dinheiro investido em segurança pública se relaciona, de fato, com os índices de
+                criminalidade em cada estado do país.
+            </p>
+
+            <div class="charts-2col">
+                <div class="chart-card">
+                    <div class="chart-label">O que é este projeto</div>
+                    <p style="font-size:14px;color:var(--text-dim);line-height:1.8;">
+                        Um <strong>dashboard interativo</strong> que cruza dados oficiais de criminalidade
+                        (Fórum Brasileiro de Segurança Pública) com dados de investimento público em segurança
+                        (Secretaria do Tesouro Nacional), permitindo visualizar padrões espaciais, identificar
+                        <em>hot spots</em> criminais e comparar a eficiência do investimento entre os 27 estados
+                        brasileiros, no período de 2016 a 2025.
+                    </p>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-label">Objetivo Acadêmico</div>
+                    <p style="font-size:14px;color:var(--text-dim);line-height:1.8;">
+                        Apoiar a <strong>tomada de decisão baseada em evidências</strong>, aplicando conceitos de
+                        Business Intelligence, análise espacial do crime e teoria dos hot spots criminais a um
+                        problema real de gestão pública, servindo como ferramenta de estudo para pesquisas
+                        acadêmicas e para a formulação de políticas de segurança.
+                    </p>
+                </div>
+            </div>
+
+            <div class="chart-card full-width" style="margin-top:16px;">
+                <div class="chart-label">O que você encontra aqui</div>
+                <div class="sobre-feature-grid">
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◉</span>
+                        <div>
+                            <div class="sobre-feature-title">Mapa de Calor</div>
+                            <div class="sobre-feature-desc">Visualização geográfica interativa dos indicadores por estado.</div>
+                        </div>
+                    </div>
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◇</span>
+                        <div>
+                            <div class="sobre-feature-title">Criminalidade</div>
+                            <div class="sobre-feature-desc">Série histórica de MVI, tráfico, feminicídio e roubo/furto.</div>
+                        </div>
+                    </div>
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◆</span>
+                        <div>
+                            <div class="sobre-feature-title">Investimentos</div>
+                            <div class="sobre-feature-desc">Gastos públicos em policiamento, defesa civil e inteligência.</div>
+                        </div>
+                    </div>
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◎</span>
+                        <div>
+                            <div class="sobre-feature-title">Análise Preditiva</div>
+                            <div class="sobre-feature-desc">Regressão linear, correlação de Pearson e eficiência do gasto.</div>
+                        </div>
+                    </div>
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◍</span>
+                        <div>
+                            <div class="sobre-feature-title">Clusterização</div>
+                            <div class="sobre-feature-desc">Agrupamento de estados por perfil via K-Means.</div>
+                        </div>
+                    </div>
+                    <div class="sobre-feature">
+                        <span class="sobre-feature-icon">◱</span>
+                        <div>
+                            <div class="sobre-feature-title">Regressão Múltipla</div>
+                            <div class="sobre-feature-desc">Impacto de cada categoria de investimento na taxa de MVI.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-2col" style="margin-top:16px;">
+                <div class="chart-card">
+                    <div class="chart-label">Tecnologias Utilizadas</div>
+                    <div class="tech-badges">
+                        <span class="tech-badge">PHP</span>
+                        <span class="tech-badge">MySQL</span>
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">scikit-learn</span>
+                        <span class="tech-badge">JavaScript</span>
+                        <span class="tech-badge">Chart.js</span>
+                        <span class="tech-badge">Leaflet.js</span>
+                        <span class="tech-badge">D3.js</span>
+                        <span class="tech-badge">HTML5 / CSS3</span>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-label">Metodologia</div>
+                    <ol class="sobre-metodologia">
+                        <li>Coleta de dados oficiais de criminalidade e investimento público;</li>
+                        <li>Tratamento, limpeza e normalização dos dados;</li>
+                        <li>Cálculo de indicadores e modelos estatísticos (regressão, correlação, clusterização);</li>
+                        <li>Visualização interativa em dashboard web;</li>
+                        <li>Validação e testes de consistência dos resultados.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="sobre-author-card">
+                <div class="sobre-author-avatar">RS</div>
+                <div class="sobre-author-info">
+                    <div class="sobre-author-name">Rennã Sag</div>
+                    <div class="sobre-author-role">Autor · Instituto Federal Goiano</div>
+                </div>
+            </div>
+
+            <div class="fonte" style="margin-top:16px;">
+                <strong>Fontes de dados:</strong> Portal da Transparência do Governo Federal, Secretaria do Tesouro
+                Nacional (STN), Fórum Brasileiro de Segurança Pública, Secretarias Estaduais de Segurança Pública,
+                ISP/RJ e IBGE. Este projeto tem finalidade acadêmica, não substituindo estatísticas oficiais
+                publicadas pelos órgãos competentes.
             </div>
         </section>
 

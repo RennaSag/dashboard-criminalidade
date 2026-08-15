@@ -95,7 +95,7 @@ navItems.forEach(item => {
 
         const topbarControls = document.querySelector('.topbar-controls');
         const indSelector = document.getElementById('indicador-selector');
-        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml' || target === 'clusters-taxa' || target === 'regressao') ? 'none' : 'flex';
+        if (topbarControls) topbarControls.style.display = (target === 'tabela' || target === 'analise-ml' || target === 'clusters-taxa' || target === 'regressao' || target === 'sobre') ? 'none' : 'flex';
         if (indSelector) indSelector.style.display = (target === 'investimentos' || target === 'criminalidade') ? 'none' : '';
 
         if (target === 'mapa') setTimeout(initMapa, 80);

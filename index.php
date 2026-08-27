@@ -125,8 +125,10 @@ $gastos_categorias = json_encode([
 
 <body>
 
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
     <!-- sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <span class="brand-icon">⬡</span>
             <div>
@@ -183,6 +185,7 @@ $gastos_categorias = json_encode([
 
         <!-- topbar -->
         <header class="topbar">
+            <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu">☰</button>
             <div class="topbar-title">
                 <h1>Dashboard de <span class="accent">Segurança Pública</span></h1>
                 <p class="topbar-sub">Correlação do investimento em segurança pública com índices de criminalidade.</p>

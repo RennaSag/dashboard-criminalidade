@@ -79,6 +79,25 @@ const indSel = document.getElementById('indicador-selector');
 const anoDisplay = document.getElementById('ano-display');
 
 
+// menu mobile
+const sidebar = document.getElementById('sidebar');
+const menuToggle = document.getElementById('menu-toggle');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+function fecharMenuMobile() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+}
+
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        sidebarOverlay.classList.toggle('open');
+    });
+}
+
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', fecharMenuMobile);
+
 // navegacao
 const navItems = document.querySelectorAll('.nav-item');
 const sections = document.querySelectorAll('.section');
@@ -92,6 +111,7 @@ navItems.forEach(item => {
         item.classList.add('active');
         const sec = document.getElementById(target);
         if (sec) sec.classList.add('active');
+        fecharMenuMobile();
 
         const topbarControls = document.querySelector('.topbar-controls');
         const indSelector = document.getElementById('indicador-selector');

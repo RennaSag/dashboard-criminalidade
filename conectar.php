@@ -1,7 +1,5 @@
 <?php
 // conectar.php - versão PostgreSQL (Neon)
-// Mantém a mesma API usada nos outros arquivos (->query, ->num_rows,
-// ->fetch_assoc(), ->connect_error, ->error) para não precisar reescrever
 // index.php, tabela_dados.php, clusters_dados.php e clusters_taxa_dados.php.
 
 class PgResult

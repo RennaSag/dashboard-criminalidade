@@ -589,8 +589,16 @@ canvas { display: block; }
     .main { margin-left: 0; }
     .menu-toggle { display: block; }
     .kpi-grid { grid-template-columns: 1fr 1fr; }
-    .topbar { padding: 14px 16px; }
+    .topbar { padding: 14px 16px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 18px; }
+    .topbar-sub { display: none; }
+    .topbar-title { min-width: 0; }
+    .topbar-controls { flex-wrap: wrap; width: 100%; order: 3; }
+    .topbar-controls .control-select { flex: 1; min-width: 0; }
     .section { padding: 16px; }
+    .table-controls { flex-wrap: wrap; }
+    .table-controls input,
+    .table-controls select { width: 100%; }
 }
 
 /* animacoes */

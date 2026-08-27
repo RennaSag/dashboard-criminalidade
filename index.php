@@ -120,7 +120,7 @@ $gastos_categorias = json_encode([
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=<?= @filemtime(__DIR__ . '/assets/css/dashboard.css') ?>">
 </head>
 
 <body>
@@ -837,5 +837,5 @@ $gastos_categorias = json_encode([
    
         };
     </script>
-    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/dashboard.js?v=<?= @filemtime(__DIR__ . '/assets/js/dashboard.js') ?>"></script>
 </body>
